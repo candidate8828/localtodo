@@ -8,5 +8,8 @@
     <p>Get your greeting <a href="/helloWorld">here</a></p>
     <p th:text="'Hello, ' + ${name} + '!'" />
     <p th:text="'Hello, ' + ${hellomessage} + '!'" />
+    <form id="shutdownForm" name="shutdownForm" action="/shutdown" method="post">
+    	<input type="submit" name="shutbtn" value="关闭服务" />
+    </form>
 </body>
 </html>

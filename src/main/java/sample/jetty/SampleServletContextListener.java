@@ -21,6 +21,8 @@ import javax.servlet.ServletContextListener;
 
 import org.springframework.stereotype.Component;
 
+import sample.jetty.embedmysql.EmbedMySqlServer;
+
 /**
  * Simple {@link ServletContextListener} to test gh-2058.
  */
@@ -34,6 +36,13 @@ public class SampleServletContextListener implements ServletContextListener {
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
+		System.out.println(Thread.currentThread().getName()+" ========================= "+3+" =========================");
+		EmbedMySqlServer mysqldbServer = SampleJettyApplication.MAIN_THREAD_LOCAL.get("embedMysqlServer");
+		try{
+			if(mysqldbServer!=null && mysqldbServer.isRunning()){
+				mysqldbServer.shutdown();
+			}
+		}catch(Exception e){e.printStackTrace();}
 		System.out.println("*** contextDestroyed");
 	}
 
