@@ -16,38 +16,47 @@
 
 package sample.jetty;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import sample.jetty.embedmysql.EmbedMySqlServer;
 
 @SpringBootApplication
 public class SampleJettyApplication {
+	public static final ConcurrentHashMap<String,EmbedMySqlServer> MAIN_THREAD_LOCAL = new ConcurrentHashMap<String,EmbedMySqlServer>();
 	
 	public static void main(String[] args) throws Exception {
+		InputStream inputstream = null;
 		try {
 			Properties pro = new Properties();
 			//根据机器配置，设置不同的参数
 			URL url = org.springframework.util.ResourceUtils.getURL("classpath:MySql_general.properties");
-			InputStream inputstream = url.openStream();
-			//pro.load(SampleJettyApplication.class.getResourceAsStream("MySql_general.properties"));
+			inputstream = url.openStream();
 			pro.load(inputstream);
 			//new EmbedMySqlServer(pro).startup();
 			//可以把数据库放到其他磁盘
-			new EmbedMySqlServer(pro,"E:\\gfworklog\\db\\").startup();
-//			Connection conn = getTestConnection();
-//			System.out.println(conn.isClosed());
-//			conn.close();
+			EmbedMySqlServer mysqldbServer = new EmbedMySqlServer(pro, "C:\\gfworklog\\db\\");
+			
+			SampleJettyApplication.MAIN_THREAD_LOCAL.put("embedMysqlServer",mysqldbServer);
+
+			mysqldbServer.startup();
+			
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			try{inputstream.close();}catch(Exception ex){}
 		}
-		System.out.println(Thread.currentThread().getId()+" ========================= "+1+" =========================");
-		SpringApplication.run(SampleJettyApplication.class, args);
+		System.out.println(Thread.currentThread().getName()+" ========================= "+1+" =========================");
+		ConfigurableApplicationContext cac = SpringApplication.run(SampleJettyApplication.class, args);
+		
+		
+		
 	}
 
 }
