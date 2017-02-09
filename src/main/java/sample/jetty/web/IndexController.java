@@ -26,13 +26,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import sample.jetty.service.WorklogService;
+import sample.jetty.service.TUserService;
 
 @Controller
 public class IndexController {
 
 	@Autowired
-	private WorklogService helloWorldService;
+	private TUserService tUserService;
 
 	@RequestMapping("/")
 	public ModelAndView toIndex(HttpServletRequest request, ModelMap model) {
@@ -43,14 +43,14 @@ public class IndexController {
 	public String helloWorld(@RequestParam(value="name", required=false, defaultValue="World") String name, HttpServletRequest request, Model model) {
 		//System.out.println(request.getClass());
 		model.addAttribute("name", name);
-		model.addAttribute("hellomessage", this.helloWorldService.getHelloMessage());
+		model.addAttribute("hellomessage", this.tUserService.getHelloMessage());
 		return "greeting";
 	}
 	
 	@RequestMapping("/doUpadte")
 	public String doUpadte(@RequestParam(value="name", required=false, defaultValue="World") String name, HttpServletRequest request, Model model) {
 		model.addAttribute("name", name);
-		model.addAttribute("hellomessage", this.helloWorldService.updateCityById(1L));
+		model.addAttribute("hellomessage", this.tUserService.updateUserById(1L));
 		return "index";
 	}
 	

@@ -21,26 +21,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import sample.jetty.dao.CityDao;
+import sample.jetty.dao.TUserDao;
 
 @Service
 @Transactional
-public class WorklogService {
+public class TUserService {
 
 	@Autowired
-	private CityDao cityDao;
+	private TUserDao tUserDao;
 	
 	@Value("${name:World}")
 	private String name;
 
 	@Transactional(readOnly=true)
 	public String getHelloMessage() {
-		return cityDao.selectCityById(1L).getName();
+		return tUserDao.selectUserById(1L).getDispname();
 	}
 	
 	@Transactional
-	public int updateCityById(long id) {
-		return cityDao.updateCityById(id);
+	public int updateUserById(long id) {
+		return tUserDao.updateUserById(id);
 	}
 
 }

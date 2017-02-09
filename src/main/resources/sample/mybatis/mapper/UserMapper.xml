@@ -19,12 +19,12 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="SAMPLE_CITYMAPPER">
-    <select id="selectCityById" resultType="sample.jetty.domain.City">
-        select * from city where id = #{id}
+<mapper namespace="SAMPLE_USER_MAPPER">
+    <select id="selectUserById" resultType="sample.jetty.domain.UserBean">
+        select * from TB_USER where id = #{id}
     </select>
     
-    <update id="updateCityById" parameterType="long">
-        update city set name = 'update杨松' where id = #{id}
+    <update id="updateUserById" parameterType="long">
+        update TB_USER set dispname = 'update杨松' where id = #{id}
     </update>
 </mapper>

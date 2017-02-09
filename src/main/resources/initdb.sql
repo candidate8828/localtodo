@@ -1,5 +1,9 @@
-drop table if exists city;
-drop table if exists hotel;
+drop table if exists TB_DICTIONARY;
+drop table if exists TB_USER;
+drop table if exists TB_WORK_LOG;
+drop table if exists TB_WORK_CONTENT;
+drop table if exists TB_LABEL;
+drop table if exists TB_LOG_LABEL;
 
 
 -- 字典表
@@ -12,7 +16,7 @@ dic_content varchar(300), -- 页面需要显示的值
 dic_order_by int default '-1', -- 排序
 active_flag char(1) default 'Y', -- 是否启用
 is_delete int default '0', -- 0:未删除,1:已经删除，已经启用的记录不能删，要先失效才能删除
-dic_comments varchar(300) -- 对此记录的注释
+dic_comments varchar(300), -- 对此记录的注释
 root_id int default '-1', -- 根记录此值等于id
 parent_id int default '-1' -- 根记录此值等于 -1
 );
@@ -31,6 +35,9 @@ dispname varchar(50), -- 页面显示名
 is_delete int default '0', -- 0:未删除,1:已经删除
 comments varchar(2000) -- 注释
 );
+
+insert into tb_user (create_dt,created_by,last_upd_dt,last_upded_by,username,password,dispname,is_delete,comments)
+values (now(),1,now(),1,'gfyangsong','a123456','杨松','0','主要使用人员');
 
 -- 工作记录表
 create table TB_WORK_LOG
@@ -84,6 +91,6 @@ created_by int,
 last_upd_dt timestamp,
 last_upded_by int,
 log_id int, -- 对应 TB_WORK_LOG.id
-label_id -- 对应 TB_LABEL.id
+label_id int -- 对应 TB_LABEL.id
 );
 -- 按照label分类   end --
