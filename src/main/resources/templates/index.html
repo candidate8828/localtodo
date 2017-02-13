@@ -1,15 +1,146 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Getting Started: Serving Web Content</title>
+    <title>todo list</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script type="text/javascript"	th:src="${urls.getForLookupPath('/jquery-2.1.1/jquery.min.js')}" charset="utf-8"></script>
+	<script type="text/javascript"	th:src="${urls.getForLookupPath('/jquery-easyui-1.5.1/jquery.easyui.min.js')}" charset="utf-8"></script>
+	<script type="text/javascript"	th:src="${urls.getForLookupPath('/jquery-easyui-1.5.1/locale/easyui-lang-zh_CN.js')}"	charset="utf-8"></script>
+	<link rel="stylesheet" type="text/css"	th:href="${urls.getForLookupPath('/jquery-easyui-1.5.1/themes/gray/easyui.css')}" />
+	<link rel="stylesheet" type="text/css"	th:href="${urls.getForLookupPath('/jquery-easyui-1.5.1/themes/icon.css')}" />
+<script type="text/javascript">
+/*<![CDATA[*/
+$.extend($.fn.validatebox.defaults.rules, {
+    unnull: {
+        validator: function(value, param){
+            value = value.replace(/(^\s*)|(\s*$)/g, "");
+            if (value != null && value != "") {
+                return true;
+            }
+            return false;
+        },
+        message: '请输入至少{0}个非空格字符。'
+    }
+});
+/*]]>*/
+</script>
 </head>
-<body>
-    <p>Get your greeting <a href="/helloWorld">here</a></p>
-    <p th:text="'Hello, ' + ${name} + '!'" />
-    <p th:text="'Hello, ' + ${hellomessage} + '!'" />
-    <form id="shutdownForm" name="shutdownForm" action="/shutdown" method="post">
-    	<input type="submit" name="shutbtn" value="关闭服务" />
-    </form>
+<body id="selfBody" class="easyui-layout">
+
+<div data-options="region:'north',border:false" style="height:60px;background:#B3DFDA;padding:10px">
+	<a href="#" id="shutdownBtn" >关闭服务</a>
+</div>
+<div data-options="region:'west',split:true,title:'West',border:false" style="width:200px;padding:1px;">
+<div class="easyui-panel" title=" " style="width:100%;padding:0px;" data-options="closable:false,tools:'#tt'">
+<a href="#" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%" >最新的文档</a>
+<a href="#" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" onclick="showFolderTree();" >我的文件夹</a>
+<ul id="tfolder"></ul>
+<a href="#" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" >垃圾箱</a>
+</div>
+<div id="tt">
+	<a href="javascript:void(0)" class="icon-add" onclick="javascript:addRootFolder();"></a><!-- alert('添加顶级文件夹') -->
+	<!-- a href="javascript:void(0)" class="icon-remove" onclick="javascript:alert('删除顶级文件夹')"></a -->
+	<!--
+	<a href="javascript:void(0)" class="icon-edit" onclick="javascript:alert('edit')"></a>
+	<a href="javascript:void(0)" class="icon-cut" onclick="javascript:alert('cut')"></a>
+	<a href="javascript:void(0)" class="icon-help" onclick="javascript:alert('help')"></a>
+	-->
+</div>
+</div>
+<div data-options="region:'east',split:true,title:'East',border:false" style="width:60%;padding:10px;">east region</div><!-- ,collapsed:true -->
+<div data-options="region:'south',border:false" style="height:50px;background:#A9FACD;padding:10px;">south region</div>
+<div data-options="region:'center',title:'Center',border:false"></div>
+
+
+
+<div id="mm" class="easyui-menu" style="width:120px;">
+	<div onclick="append()" data-options="iconCls:'icon-add'">添加子文件夹</div>
+	<div onclick="remove()" data-options="iconCls:'icon-remove'">Remove</div>
+</div>
+
+<div id="dlgAddRootFolder" class="easyui-dialog" title="添加顶级文件夹" style="width:400px;height:200px;padding:10px"
+data-options="
+    iconCls: 'icon-save',
+    buttons: [{
+        text:'确定',
+        handler:function(){
+            $.messager.progress();
+        	$('#addRootFolderForm').form('submit', {
+        		url: '/addNewRootFolder',
+        		onSubmit: function(){
+        			var isValid = $(this).form('validate');
+        			if (!isValid){
+        				$.messager.progress('close');
+        			}
+        			return isValid;
+        		},
+        		success: function(){
+        			$.messager.progress('close');
+        			$('#dlgAddRootFolder').dialog('close');
+		            $('#addRootFolderForm').form('reset');
+		            $('#addRootFolderForm').form('clear');
+        			$('#tfolder').tree('reload');
+        		}
+        	});
+        }
+    },{
+        text:'取消',
+        handler:function(){
+            $('#dlgAddRootFolder').dialog('close');
+            $('#addRootFolderForm').form('reset');
+            $('#addRootFolderForm').form('clear');
+        }
+    }],
+    modal:true,
+    closed: true
+">
+<form id="addRootFolderForm" action="/addNewRootFolder" method="post" enctype="multipart/form-data">
+<input class="easyui-textbox" id="folderName" name="folderName" style="width:100%" 
+       data-options="label:'folderName:',invalidMessage:'文件夹名必须非空且不能重复。',required:true,validType:{ unnull:[1], remote:['/checkFolderExistsOrNot','paramName'] }" />
+</form>
+</div>
+
+<script type="text/javascript" >
+
+$('#tfolder').tree({
+    url: "/getFolders",
+    formatter:function(node){
+		return node.text;
+	},
+	onContextMenu: function(e, node){
+		e.preventDefault();
+		// select the node
+		$('#tfolder').tree('select', node.target);
+		// display context menu
+		$('#mm').menu('show', {
+			left: e.pageX,
+			top: e.pageY
+		});
+	}
+});
+function showFolderTree(){
+	if (!$('#tfolder').attr("style")) {
+		$('#tfolder').attr("style","display:none");
+	} else if ($('#tfolder').attr("style") == 'display:none') {
+		$('#tfolder').attr("style","display:block");
+	} else if ($('#tfolder').attr("style") == 'display:block') {
+		$('#tfolder').attr("style","display:none");
+	}
+}
+
+//捕捉链接的点击事件  
+$('#shutdownBtn').click(function(){
+	$.ajax({
+		type: 'POST',
+		url: '/shutdown',
+		dataType: 'json',
+		success: function(data, textStatus){alert('关闭成功！')}
+	});
+});
+
+function addRootFolder() {
+	$('#dlgAddRootFolder').dialog('open');
+}
+</script>
 </body>
 </html>

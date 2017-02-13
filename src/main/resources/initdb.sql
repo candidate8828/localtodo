@@ -4,6 +4,8 @@ drop table if exists TB_WORK_LOG;
 drop table if exists TB_WORK_CONTENT;
 drop table if exists TB_LABEL;
 drop table if exists TB_LOG_LABEL;
+drop table if exists TB_FOLDER;
+drop table if exists TB_LOG_FOLDER;
 
 
 -- 字典表
@@ -94,3 +96,36 @@ log_id int, -- 对应 TB_WORK_LOG.id
 label_id int -- 对应 TB_LABEL.id
 );
 -- 按照label分类   end --
+
+-- 按照folder分类  start --
+create table TB_FOLDER
+(
+id int primary key auto_increment,
+folder_name  varchar(500), -- 标签名
+create_dt timestamp,
+created_by int,
+last_upd_dt timestamp,
+last_upded_by int,
+is_delete int default '0', -- 0:未删除,1:已经删除,在 TB_LOG_FOLDER 中有对应记录的不能删
+parent_id int default '0', -- 默认为顶级目录
+order_by int -- 顺序
+);
+
+insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+values ('工作', now(), '1', now(), '1', '0', '0', '1');
+insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+values ('技术', now(), '1', now(), '1', '0', '0', '2');
+insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+values ('未分类', now(), '1', now(), '1', '0', '0', '3');
+
+create table TB_LOG_FOLDER
+(
+id int primary key auto_increment,
+create_dt timestamp,
+created_by int,
+last_upd_dt timestamp,
+last_upded_by int,
+log_id int, -- 对应 TB_WORK_LOG.id
+folder_id int -- 对应 TB_FOLDER.id
+);
+-- 按照folder分类   end --

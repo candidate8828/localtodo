@@ -20,9 +20,12 @@
         PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
-
-    <mappers>
-        <mapper resource="sample/mybatis/mapper/UserMapper.xml"/>
-    </mappers>
+	<settings>  
+        <setting name="logPrefix" value="dao."/>
+	</settings>
+	<mappers>
+		<mapper resource="sample/mybatis/mapper/UserMapper.xml"/>
+		<mapper resource="sample/mybatis/mapper/FolderMapper.xml"/>
+	</mappers>
     
 </configuration>

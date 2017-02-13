@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<configuration>
+
+	<!-- 日志打印路径 -->
+	<property name="DEV_HOME" value="C:/gfworklog/logs" />
+	
+	<!-- 控制台日志打印 -->
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+	
+	<!-- web日志打印 -->
+	<appender name="FILE-WEB" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${DEV_HOME}/web.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+	
+	<!-- error日志打印 -->
+	<appender name="FILE-EXCEPTION" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${DEV_HOME}/exception.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+				class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+
+	<logger name="sample.jetty" level="debug" additivity="false">
+		<appender-ref ref="FILE-WEB" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<logger name="sample.jetty" level="error" additivity="false">
+		<appender-ref ref="FILE-EXCEPTION" />
+		<appender-ref ref="STDOUT" />
+	</logger>
+	
+	<logger name="dao" level="DEBUG">  
+	    <appender-ref ref="FILE-WEB" />
+		<appender-ref ref="STDOUT" /> 
+	</logger>
+
+	<root level="error">
+		<appender-ref ref="FILE-EXCEPTION" />
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>

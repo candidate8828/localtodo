@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SAMPLE_FOLDER_MAPPER">
+	<resultMap type="sample.jetty.domain.TreeBean" id="TREE_BEAN_MAP">
+		<result column="ID"          jdbcType="INTEGER" property="id"    javaType="long"/>
+		<result column="FOLDER_NAME" jdbcType="VARCHAR" property="text"  javaType="String"/>
+		<result column="STATE"       jdbcType="VARCHAR" property="state" javaType="String"/>
+	</resultMap>
+	<select id="selectRootFolders" resultMap="TREE_BEAN_MAP">
+        select ID,FOLDER_NAME,'closed' AS STATE,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY 
+		from test.TB_FOLDER where is_delete = '0' and parent_id = '0' order by ORDER_BY asc
+	</select>
+    
+    <select id="selectChildrenFoldersByParentId" resultMap="TREE_BEAN_MAP" parameterType="long">
+        select ID,FOLDER_NAME,'closed' AS STATE,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY 
+		from test.TB_FOLDER where is_delete = '0' and parent_id = #{id} order by ORDER_BY asc
+	</select>
+    
+    <select id="selectFolderCountByName" parameterType="String" resultType="int">
+    	select count(1) count_num from test.TB_FOLDER where FOLDER_NAME = #{folderName}
+    </select>
+    
+    <select id="selectMaxOrderNumInRootFolder" resultType="int">
+    	select max(order_by) as maxOrderNum from test.TB_FOLDER where is_delete = '0' and parent_id = '0'
+    </select>
+    
+    <insert id="addNewRootFolder" parameterType="HashMap" >
+    	insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+		values (#{folderName}, now(), '1', now(), '1', '0', '0', #{maxOrderNum});
+    </insert>
+</mapper>
