@@ -7,6 +7,8 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import sample.jetty.domain.FolderBean;
+
 @Repository
 public class TFolderDao {
 	@Autowired
@@ -17,9 +19,9 @@ public class TFolderDao {
 		return (List<TreeBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectRootFolders");
 	}*/
 	
-	@SuppressWarnings({ "unchecked" })
-	public <TreeBean> List<TreeBean> selectChildrenFoldersByParentId(long id) {
-		return (List<TreeBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectChildrenFoldersByParentId", id);
+	@SuppressWarnings({ "unchecked", "hiding" })
+	public <FolderBean> List<FolderBean> selectChildrenFoldersByParentId(long id) {
+		return (List<FolderBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectChildrenFoldersByParentId", id);
 	}
 	
 	public boolean checkFolderExistsOrNot(String folderName, long id) {
@@ -44,6 +46,11 @@ public class TFolderDao {
 		paramMap.put("id", id);
 		paramMap.put("maxOrderNum", maxOrderNum);
 		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addNewFolder", paramMap) > 0;
+	}
+	
+	public FolderBean selectFolderById(long id) {
+		FolderBean folder = this.sqlSessionTemplate.selectOne("SAMPLE_FOLDER_MAPPER.selectFolderById", id);
+		return folder;
 	}
 	
 	/**
@@ -75,16 +82,24 @@ public class TFolderDao {
 	}
 	
 	/**
-	 * 查询指定folder node下存在的有效log的数量
+	 * 根据指定id刪除指定的folder
 	 * @param id
 	 * @return
 	 */
 	public int deleteFolderById(long id) {
-		Integer resultInteger = this.sqlSessionTemplate.delete("SAMPLE_FOLDER_MAPPER.deleteFolderById", id);
-		if (null == resultInteger) {
+		int resultInt = this.sqlSessionTemplate.delete("SAMPLE_FOLDER_MAPPER.deleteFolderById", id);
+		if (0 == resultInt) {
 			return 0;
 		} else {
-			return resultInteger.intValue();
+			return resultInt;
 		}
+	}
+	
+	public int updateFolderById(FolderBean folder) {
+		if (0 == folder.getId()) {
+			return 0;
+		}
+		int resultInt = this.sqlSessionTemplate.update("SAMPLE_FOLDER_MAPPER.updateFolderById", folder);
+		return resultInt;
 	}
 }

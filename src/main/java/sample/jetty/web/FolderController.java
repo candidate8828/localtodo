@@ -74,6 +74,9 @@ public class FolderController {
 	@ResponseBody
 	public boolean deleteFolder(@RequestParam(value="id", required=true) long id, HttpServletRequest request) {
 		boolean delOpResult = false;
+		if(1L == id || 2L == id || 3L == id){
+			return delOpResult;
+		}
 		delOpResult = tFolderService.deleteFolderById(id);
 		return delOpResult;
 	}
