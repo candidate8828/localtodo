@@ -8,26 +8,38 @@
 		<result column="FOLDER_NAME" jdbcType="VARCHAR" property="text"  javaType="String"/>
 		<result column="STATE"       jdbcType="VARCHAR" property="state" javaType="String"/>
 	</resultMap>
-	<select id="selectRootFolders" resultMap="TREE_BEAN_MAP">
+	<!-- <select id="selectRootFolders" resultMap="TREE_BEAN_MAP">
         select ID,FOLDER_NAME,'closed' AS STATE,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY 
 		from test.TB_FOLDER where is_delete = '0' and parent_id = '0' order by ORDER_BY asc
-	</select>
+	</select> -->
     
     <select id="selectChildrenFoldersByParentId" resultMap="TREE_BEAN_MAP" parameterType="long">
         select ID,FOLDER_NAME,'closed' AS STATE,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY 
 		from test.TB_FOLDER where is_delete = '0' and parent_id = #{id} order by ORDER_BY asc
 	</select>
     
-    <select id="selectFolderCountByName" parameterType="String" resultType="int">
-    	select count(1) count_num from test.TB_FOLDER where FOLDER_NAME = #{folderName}
+    <select id="selectFolderCountByName" parameterType="HashMap" resultType="int">
+    	select count(1) count_num from test.TB_FOLDER where is_delete = '0' and FOLDER_NAME = #{folderName} and parent_id = #{id}
     </select>
     
-    <select id="selectMaxOrderNumInRootFolder" resultType="int">
-    	select max(order_by) as maxOrderNum from test.TB_FOLDER where is_delete = '0' and parent_id = '0'
+    <select id="selectMaxOrderNumByParentId" resultType="int" parameterType="long">
+    	select max(order_by) as maxOrderNum from test.TB_FOLDER where is_delete = '0' and parent_id = #{id}
     </select>
     
-    <insert id="addNewRootFolder" parameterType="HashMap" >
-    	insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
-		values (#{folderName}, now(), '1', now(), '1', '0', '0', #{maxOrderNum});
+    <insert id="addNewFolder" parameterType="HashMap" >
+    	insert into test.TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+		values (#{folderName}, now(), '1', now(), '1', '0', #{id}, #{maxOrderNum})
     </insert>
+    
+    <select id="selectValidFolderCountByFolderId" resultType="int" parameterType="long">
+    	select count(1) count_num from test.TB_FOLDER where is_delete = '0' and parent_id = #{id}
+    </select>
+    
+    <select id="selectValidLogCountByFolderId" resultType="int" parameterType="long">
+    	select count(1) count_num from test.TB_LOG_FOLDER where folder_id = #{id}
+    </select>
+    
+    <delete id="deleteFolderById" parameterType="long">
+    	delete from test.TB_FOLDER where is_delete = '0' and id = #{id}
+    </delete>
 </mapper>

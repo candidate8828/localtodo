@@ -26,14 +26,14 @@ public class FolderController {
 
 	@RequestMapping("/getFolders")
 	@ResponseBody
-	public List<TreeBean> getFolders(@RequestParam(value="id", required=false, defaultValue="All") String id, HttpServletRequest request) {
-		logger.debug("id="+id);
+	public List<TreeBean> getFolders(@RequestParam(value="id", required=false, defaultValue="0") String id, HttpServletRequest request) {
+		//logger.debug("id="+id);
 		List<TreeBean> folderList = null;
-		if ("All".equalsIgnoreCase(id)) {
-			folderList = tFolderService.selectRootFolders();
-		} else {
+		//if ("All".equalsIgnoreCase(id)) {
+		//	folderList = tFolderService.selectRootFolders();
+		//} else {
 			folderList = tFolderService.selectChildrenFoldersByParentId(Long.valueOf(id).longValue());
-		}
+		//}
 		if (null != folderList) {
 			logger.debug("folderList="+folderList.toArray());
 			return folderList;
@@ -44,24 +44,37 @@ public class FolderController {
 	
 	@RequestMapping("/checkFolderExistsOrNot")
 	@ResponseBody
-	public boolean checkFolderExistsOrNot(@RequestParam(value="paramName", required=true, defaultValue="") String folderName, HttpServletRequest request) {
+	public boolean checkFolderExistsOrNot(@RequestParam(value="id", required=true) long id, 
+			@RequestParam(value="folderName", required=true) String folderName, 
+			HttpServletRequest request) {
 		if (!StringUtils.isEmpty(folderName)) {
 			folderName = folderName.trim();
 		}
-		boolean isExists = tFolderService.checkFolderExistsOrNot(folderName);
+		boolean isExists = tFolderService.checkFolderExistsOrNot(folderName, id);
  		return !isExists;
 	}
 	
-	@RequestMapping("/addNewRootFolder")
+	
+	@RequestMapping("/addNewFolder")
 	@ResponseBody
-	public boolean addNewRootFolder(@RequestParam(value="folderName", required=true, defaultValue="") String folderName, HttpServletRequest request) {
+	public boolean addNewFolder(@RequestParam(value="id", required=true) long id, 
+			@RequestParam(value="folderName", required=true) String folderName, 
+			HttpServletRequest request) {
 		if (!StringUtils.isEmpty(folderName)) {
 			folderName = folderName.trim();
 		}
 		if (!StringUtils.isEmpty(folderName)) {
-			return tFolderService.addNewRootFolder(folderName);
+			return tFolderService.addNewFolder(folderName, id);
 		} else {
 			return false;
 		}
+	}
+	
+	@RequestMapping("/deleteFolder")
+	@ResponseBody
+	public boolean deleteFolder(@RequestParam(value="id", required=true) long id, HttpServletRequest request) {
+		boolean delOpResult = false;
+		delOpResult = tFolderService.deleteFolderById(id);
+		return delOpResult;
 	}
 }
