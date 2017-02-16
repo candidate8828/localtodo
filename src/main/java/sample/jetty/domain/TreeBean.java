@@ -5,6 +5,9 @@ import java.io.Serializable;
 public class TreeBean implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	
+	public TreeBean() {
+	}
 
 	private long id;
 	private String text;

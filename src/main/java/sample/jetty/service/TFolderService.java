@@ -1,5 +1,7 @@
 package sample.jetty.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import sample.jetty.dao.TFolderDao;
+import sample.jetty.domain.FolderBean;
 import sample.jetty.domain.TreeBean;
+import sample.jetty.util.OrderByComparator;
 
 @Service
 @Transactional
@@ -22,7 +26,18 @@ public class TFolderService {
 	
 	@Transactional(readOnly=true)
 	public List<TreeBean> selectChildrenFoldersByParentId(long id) {
-		return tFolderDao.selectChildrenFoldersByParentId(id);
+		List<FolderBean> folderList = tFolderDao.selectChildrenFoldersByParentId(id);
+		List<TreeBean> treeList = new ArrayList<TreeBean>();
+		TreeBean treeBean = null;
+		if (null != folderList && !folderList.isEmpty()) {
+			for (FolderBean folder : folderList) {
+				treeBean = new TreeBean();
+				treeBean.setId(folder.getId());
+				treeBean.setText(folder.getFolderName());
+				treeList.add(treeBean);
+			}
+		}
+		return treeList;
 	}
 	
 	@Transactional(readOnly=true)
@@ -36,9 +51,21 @@ public class TFolderService {
 		int existsRelateLogCount = tFolderDao.selectValidLogCountByFolderId(id);
 		if (0 == (existsValidFolderCount + existsRelateLogCount)) {
 			// TODO 进行删除操作，然后返回删除成功
+			FolderBean selectedFolder = tFolderDao.selectFolderById(id);
 			// 先查出来，获取parentId的值，再删掉此node，然后将parentId相同的folders重新排序
 			int effectCount = tFolderDao.deleteFolderById(id);
 			// TODO 重新排列同一级下的node的order_by顺序
+			List<FolderBean> folderList = tFolderDao.selectChildrenFoldersByParentId(selectedFolder.getParentId());
+			/*
+			OrderByComparator mc = new OrderByComparator() ; 
+			Collections.sort(folderList, mc) ;
+			*/
+			FolderBean tempFolder = null;
+			for (int i=1; i<= folderList.size(); i++) {
+				tempFolder = folderList.get(i-1);
+				tempFolder.setOrderBy(i);
+				tFolderDao.updateFolderById(tempFolder);
+			}
 			return effectCount > 0;
 		} else { // 否则不能删除，返回删除失败的标识
 			return false;

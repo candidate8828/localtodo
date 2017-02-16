@@ -4,6 +4,9 @@ public class UserBean extends BaseBean {
 
 	private static final long serialVersionUID = 1L;
 
+	public UserBean() {
+	}
+	
 	private String username; // username varchar(20), -- 登录名
 	private String password; // password varchar(20), -- 密码
 	private String dispname; // dispname varchar(50), -- 页面显示名

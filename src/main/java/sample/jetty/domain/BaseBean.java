@@ -7,6 +7,9 @@ public class BaseBean implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
+	public BaseBean() {
+	}
+	
 	private long id; // int primary key auto_increment,
 	private Date createDt; // create_dt timestamp,
 	private long createdBy; // created_by int,
