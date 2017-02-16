@@ -1,6 +1,7 @@
 package sample.jetty.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ public class TFolderService {
 	public boolean updateFolderName(String folderName, long id) throws Exception {
 		FolderBean tempFolder = tFolderDao.selectFolderById(id);
 		tempFolder.setFolderName(folderName);
+		tempFolder.setLastUpdDt(new Date());
 		return tFolderDao.updateFolderById(tempFolder) > 0;
 	}
 }
