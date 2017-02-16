@@ -48,22 +48,22 @@
 	</appender>
 
 	<logger name="sample.jetty" level="debug" additivity="false">
-		<appender-ref ref="FILE-WEB" />
+		<!-- appender-ref ref="FILE-WEB" / -->
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
 	<logger name="sample.jetty" level="error" additivity="false">
-		<appender-ref ref="FILE-EXCEPTION" />
+		<!-- appender-ref ref="FILE-EXCEPTION" / -->
 		<appender-ref ref="STDOUT" />
 	</logger>
 	
 	<logger name="dao" level="DEBUG">  
-	    <appender-ref ref="FILE-WEB" />
+	    <!-- appender-ref ref="FILE-WEB" / -->
 		<appender-ref ref="STDOUT" /> 
 	</logger>
 
 	<root level="error">
-		<appender-ref ref="FILE-EXCEPTION" />
+		<!-- appender-ref ref="FILE-EXCEPTION" / -->
 		<appender-ref ref="STDOUT" />
 	</root>
 

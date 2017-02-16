@@ -1,7 +1,6 @@
 package sample.jetty.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,21 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 import sample.jetty.dao.TFolderDao;
 import sample.jetty.domain.FolderBean;
 import sample.jetty.domain.TreeBean;
-import sample.jetty.util.OrderByComparator;
 
 @Service
 @Transactional
 public class TFolderService {
 	@Autowired
 	private TFolderDao tFolderDao;
-	
-	/*@Transactional(readOnly=true)
-	public List<TreeBean> selectRootFolders() {
-		return tFolderDao.selectRootFolders();
-	}*/
-	
+
 	@Transactional(readOnly=true)
-	public List<TreeBean> selectChildrenFoldersByParentId(long id) {
+	public List<TreeBean> selectChildrenFoldersByParentId(long id) throws Exception {
 		List<FolderBean> folderList = tFolderDao.selectChildrenFoldersByParentId(id);
 		List<TreeBean> treeList = new ArrayList<TreeBean>();
 		TreeBean treeBean = null;
@@ -41,25 +34,21 @@ public class TFolderService {
 	}
 	
 	@Transactional(readOnly=true)
-	public boolean checkFolderExistsOrNot(String folderName, long id) {
+	public boolean checkFolderExistsOrNot(String folderName, long id) throws Exception {
 		return tFolderDao.checkFolderExistsOrNot(folderName, id);
 	}
 	
 	@Transactional
-	public boolean deleteFolderById(long id) {
+	public boolean deleteFolderById(long id) throws Exception {
 		int existsValidFolderCount = tFolderDao.selectValidFolderCountByFolderId(id);
 		int existsRelateLogCount = tFolderDao.selectValidLogCountByFolderId(id);
 		if (0 == (existsValidFolderCount + existsRelateLogCount)) {
-			// TODO 进行删除操作，然后返回删除成功
+			// 进行删除操作，然后返回删除成功
 			FolderBean selectedFolder = tFolderDao.selectFolderById(id);
 			// 先查出来，获取parentId的值，再删掉此node，然后将parentId相同的folders重新排序
 			int effectCount = tFolderDao.deleteFolderById(id);
-			// TODO 重新排列同一级下的node的order_by顺序
+			// 重新排列同一级下的node的order_by顺序
 			List<FolderBean> folderList = tFolderDao.selectChildrenFoldersByParentId(selectedFolder.getParentId());
-			/*
-			OrderByComparator mc = new OrderByComparator() ; 
-			Collections.sort(folderList, mc) ;
-			*/
 			FolderBean tempFolder = null;
 			for (int i=1; i<= folderList.size(); i++) {
 				tempFolder = folderList.get(i-1);
@@ -73,8 +62,15 @@ public class TFolderService {
 	}
 	
 	@Transactional
-	public boolean addNewFolder(String folderName, long id) {
+	public boolean addNewFolder(String folderName, long id) throws Exception {
 		int maxOrderNum = tFolderDao.selectMaxOrderNumByParentId(id);
 		return tFolderDao.addNewFolder(folderName, id, maxOrderNum+1);
+	}
+	
+	@Transactional
+	public boolean updateFolderName(String folderName, long id) throws Exception {
+		FolderBean tempFolder = tFolderDao.selectFolderById(id);
+		tempFolder.setFolderName(folderName);
+		return tFolderDao.updateFolderById(tempFolder) > 0;
 	}
 }

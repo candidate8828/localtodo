@@ -64,7 +64,7 @@ $.extend($.fn.validatebox.defaults.rules, {
 <div id="mm" class="easyui-menu" style="width:120px;">
 	<div onclick="addChildFolder()" data-options="iconCls:'icon-add'">添加子文件夹</div>
 	<div onclick="deleteFolder()" data-options="iconCls:'icon-remove'">删除文件夹</div>
-	<div onclick="deleteFolder()" data-options="iconCls:'icon-edit'">文件夹改名</div>
+	<div onclick="updateFolder()" data-options="iconCls:'icon-edit'">文件夹改名</div>
 	<div onclick="addlog()" data-options="iconCls:'icon-help'">添加记录</div>
 </div>
 
@@ -76,7 +76,7 @@ data-options="
         handler:function(){
             $.messager.progress();
         	$('#addFolderForm').form('submit', {
-        		url: '/addNewFolder',
+        		url: $('#addFolderForm').attr('action'),
         		onSubmit: function(){
         			var isValid = $(this).form('validate');
         			if (!isValid){
@@ -87,10 +87,18 @@ data-options="
         		success: function(){
         			$.messager.progress('close');
         			$('#dlgAddFolder').dialog('close');
-		            if ( $('#addFolderType').val() == 'root'){
+		            if ( $('#addFolderType').val() == 'root') {
         				$('#tfolder').tree('reload');
-        			} else {
+        			} else if ( $('#addFolderType').val() == 'child') {
         				$('#tfolder').tree('reload', $('#tfolder').tree('getSelected').target);
+        			} else if ( $('#addFolderType').val() == 'update') {
+        				var node = $('#tfolder').tree('getSelected');
+						if (node){
+							$('#tfolder').tree('update', {
+								target: node.target,
+								text: $('#folderName').val()
+							});
+						}
         			}
         			$('#addFolderForm').form('reset');
 		            $('#addFolderForm').form('clear');
@@ -135,7 +143,7 @@ function addRootFolder() {
 	$('#newFolderId').val('0');
 	$('#addFolderType').val('root');
 	$('#dlgAddFolder').dialog('open');
-	$('#folderName').next('span').find('input').focus()
+	$('#folderName').next('span').find('input').focus();
 }
 function addChildFolder() {
 	$('#dlgAddFolder').dialog({'title':'添加子级文件夹'});
@@ -143,7 +151,7 @@ function addChildFolder() {
 	$('#newFolderId').val($('#tfolder').tree('getSelected').id);
 	$('#addFolderType').val('child');
 	$('#dlgAddFolder').dialog('open');
-	$('#folderName').next('span').find('input').focus()
+	$('#folderName').next('span').find('input').focus();
 }
 function deleteFolder() {
 	var id = $('#tfolder').tree('getSelected').id;
@@ -159,7 +167,7 @@ function deleteFolder() {
         		data: {'id': $('#tfolder').tree('getSelected').id },
         		dataType: 'json',
         		success: function(data, textStatus){
-        			if ("true" == data) {
+        			if (true == data) {
 	        			$('#tfolder').tree('reload', $('#tfolder').tree('getParent', $('#tfolder').tree('getSelected').target).target);
 	        			$.messager.alert('系统信息',"删除文件夹成功！",'info');
         			} else {
@@ -170,7 +178,14 @@ function deleteFolder() {
         }
     });
 }
-
+function updateFolder() {
+	$('#dlgAddFolder').dialog({'title':'修改文件夹名称'});
+	$('#addFolderForm').attr("action", "/updateFolderName");
+	$('#newFolderId').val($('#tfolder').tree('getSelected').id);
+	$('#addFolderType').val('update');
+	$('#dlgAddFolder').dialog('open');
+	$('#folderName').next('span').find('input').focus();
+}
 $(document).ready(function(){
 	//捕捉链接的点击事件  
 	$('#shutdownBtn').click(function(){

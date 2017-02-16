@@ -26,14 +26,13 @@ public class FolderController {
 
 	@RequestMapping("/getFolders")
 	@ResponseBody
-	public List<TreeBean> getFolders(@RequestParam(value="id", required=false, defaultValue="0") String id, HttpServletRequest request) {
-		//logger.debug("id="+id);
+	public List<TreeBean> getFolders(@RequestParam(value="id", required=false, defaultValue="0") long id, HttpServletRequest request) {
 		List<TreeBean> folderList = null;
-		//if ("All".equalsIgnoreCase(id)) {
-		//	folderList = tFolderService.selectRootFolders();
-		//} else {
-			folderList = tFolderService.selectChildrenFoldersByParentId(Long.valueOf(id).longValue());
-		//}
+		try {
+			folderList = tFolderService.selectChildrenFoldersByParentId(id);
+		} catch (Exception e) {
+			logger.error("/getFolders", e);
+		}
 		if (null != folderList) {
 			logger.debug("folderList="+folderList.toArray());
 			return folderList;
@@ -50,7 +49,12 @@ public class FolderController {
 		if (!StringUtils.isEmpty(folderName)) {
 			folderName = folderName.trim();
 		}
-		boolean isExists = tFolderService.checkFolderExistsOrNot(folderName, id);
+		boolean isExists = false;
+		try {
+			isExists = tFolderService.checkFolderExistsOrNot(folderName, id);
+		} catch (Exception e) {
+			logger.error("/checkFolderExistsOrNot", e);
+		}
  		return !isExists;
 	}
 	
@@ -63,11 +67,15 @@ public class FolderController {
 		if (!StringUtils.isEmpty(folderName)) {
 			folderName = folderName.trim();
 		}
+		boolean addResult = false;
 		if (!StringUtils.isEmpty(folderName)) {
-			return tFolderService.addNewFolder(folderName, id);
-		} else {
-			return false;
+			try {
+				addResult = tFolderService.addNewFolder(folderName, id);
+			} catch (Exception e) {
+				logger.error("/addNewFolder", e);
+			}
 		}
+		return addResult;
 	}
 	
 	@RequestMapping("/deleteFolder")
@@ -77,7 +85,32 @@ public class FolderController {
 		if(1L == id || 2L == id || 3L == id){
 			return delOpResult;
 		}
-		delOpResult = tFolderService.deleteFolderById(id);
+		try {
+			delOpResult = tFolderService.deleteFolderById(id);
+		} catch (Exception e) {
+			logger.error("/deleteFolder", e);
+		}
 		return delOpResult;
 	}
+	
+	@RequestMapping("/updateFolderName")
+	@ResponseBody
+	public boolean updateFolderName(@RequestParam(value="id", required=true) long id, 
+			@RequestParam(value="folderName", required=true) String folderName, 
+			HttpServletRequest request) {
+		if (!StringUtils.isEmpty(folderName)) {
+			folderName = folderName.trim();
+		}
+		boolean updateResult = false;
+		if (!StringUtils.isEmpty(folderName)) {
+			try {
+				updateResult = tFolderService.updateFolderName(folderName, id);
+			} catch (Exception e) {
+				logger.error("/addNewFolder", e);
+			}
+		}
+		return updateResult;
+	}
+	
+	
 }

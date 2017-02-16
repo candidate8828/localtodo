@@ -58,16 +58,16 @@
     	delete from test.TB_FOLDER where is_delete = '0' and id = #{id}
     </delete>
     
+    <!-- get fist then update,so no dynamic sql -->
     <update id="updateFolderById" parameterType="sample.jetty.domain.FolderBean" >
     	update test.TB_FOLDER 
-    	<set>  
-        <if test="folderName != null">  
-            FOLDER_NAME = #{folderName},  
-        </if>  
-            ORDER_BY = #{orderBy},  
+    	set
+            FOLDER_NAME = #{folderName},
+            LAST_UPD_DT = #{lastUpdDt},
+            LAST_UPDED_BY = #{lastUpdedBy},
             IS_DELETE = #{isDelete}, 
-            PARENT_ID = #{parentId}  
-    	</set>  
-    	WHERE id = #{id}; 
+            PARENT_ID = #{parentId},
+            ORDER_BY = #{orderBy}
+    	WHERE id = #{id}
     </update>
 </mapper>
