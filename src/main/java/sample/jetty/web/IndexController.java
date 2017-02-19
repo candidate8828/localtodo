@@ -16,20 +16,16 @@
 
 package sample.jetty.web;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import sample.jetty.domain.TreeBean;
 import sample.jetty.service.TUserService;
 
 @Controller
@@ -44,14 +40,14 @@ public class IndexController {
 	}
 
 	
-//	@RequestMapping("/helloWorld")
-//	public String helloWorld(@RequestParam(value="name", required=false, defaultValue="World") String name, HttpServletRequest request, Model model) {
-//		//System.out.println(request.getClass());
-//		model.addAttribute("name", name);
-//		model.addAttribute("hellomessage", this.tUserService.getHelloMessage());
-//		return "greeting";
-//	}
-//	
+	@RequestMapping("/helloWorld")
+	public String helloWorld(@RequestParam(value="name", required=false, defaultValue="World") String name, HttpServletRequest request, Model model) {
+		//System.out.println(request.getClass());
+		model.addAttribute("name", name);
+		model.addAttribute("hellomessage", this.tUserService.getHelloMessage());
+		return "greeting";
+	}
+	
 //	@RequestMapping("/doUpadte")
 //	public String doUpadte(@RequestParam(value="name", required=false, defaultValue="World") String name, HttpServletRequest request, Model model) {
 //		model.addAttribute("name", name);
