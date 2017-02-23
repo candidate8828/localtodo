@@ -1,0 +1,101 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>todo list</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css"	href="/editor.md-1.5.0/css/editormd.min.css" />
+	<script type="text/javascript" charset="utf-8" src="/jquery-2.1.1/jquery.min.js" ></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0/editormd.js" ></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0//lib/marked.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0//lib/prettify.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0//lib/raphael.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0//lib/underscore.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0//lib/sequence-diagram.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0//lib/flowchart.min.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0//lib/jquery.flowchart.min.js"></script>
+	
+</head>
+<body style="margin:0px 2px 0px 1px;">
+<input type="hidden" id="markdownId" name="logId" th:value="${logId}"/>
+<div id="markdown-editormd" style="width:100%;height:100%;margin: 0px 0px 0px 0px;padding:0px 0px 0px 0px;">
+	<textarea id="markdown-content-textarea" style="display:none;" th:text="${log.logContent}"></textarea>
+</div>
+
+<script type="text/javascript">
+/*<![CDATA[*/
+
+var testEditor;
+$(function(){
+	testEditor = editormd("markdown-editormd",{
+		width: "100%",
+		height: "100%",
+		path : '/editor.md-1.5.0/lib/',
+		onresize : function() {
+			//$('#markdown-editormd').height(document.getElementById('markdown-east').style.height)
+			//console.log(document.getElementById('markdown-east').style.height + "\t"+($('#markdown-editormd').height(new Number(document.getElementById('markdown-east').style.height.replace('px',''))-7)));
+			//this.height(document.getElementById('markdown-east').style.height + "px");
+		},
+		theme : "default",
+		previewTheme : "default",
+		editorTheme : "eclipse",
+		//markdown : "",
+		codeFold : true,
+		//syncScrolling : false,
+		saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
+		searchReplace : true,
+		//watch : false,                // 关闭实时预览
+		htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
+		//toolbar  : false,             //关闭工具栏
+		//previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
+		emoji : true,
+		taskList : true,
+		tocm : true,         // Using [TOCM]
+		tex : true,                   // 开启科学公式TeX语言支持，默认关闭
+		flowChart : true,             // 开启流程图支持，默认关闭
+		sequenceDiagram : true,       // 开启时序/序列图支持，默认关闭,
+		//dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
+		//dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
+		//dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
+		//dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
+		//dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
+		imageUpload : true,
+		imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
+		imageUploadURL : "./php/upload.php",
+		toolbarIcons: 'customer',
+		onload : function() {
+			//console.log('onload', this);
+			//this.fullscreen();
+			//this.unwatch();
+			//this.watch().fullscreen();
+			//this.setMarkdown("#PHP");
+			//this.width("100%");
+			if(window.parent.document.getElementById('editorMdContentId')){
+				//console.log(window.parent.document.getElementById('editorMdContentId').style.height);
+				//this.height(window.parent.document.getElementById('editorMdContentId').style.height);
+				//console.log(window.parent.document.getElementById('editorMdContentId').parentNode.style.height);
+				this.height((new Number(window.parent.document.getElementById('editorMdContentId').parentNode.style.height.replace('px','')) - 2) +"px");
+			} else {
+				this.height(document.body.scrollHeight - 2);
+			}
+			//this.resize("100%", 640);
+		}
+	});
+});
+
+function getMarkdown() {
+	return testEditor.getMarkdown();
+}
+
+$(document).ready(function(){
+	$(window).resize(function() {
+		if (window.parent.document.getElementById('editorMdContentId')) {
+			testEditor.height((new Number(window.parent.document.getElementById('editorMdContentId').parentNode.style.height.replace('px','')) - 2) +"px");
+		} else {
+			testEditor.height(document.body.scrollHeight - 2);
+		}
+	});
+});
+/*]]>*/
+</script>
+</body>
+</html>

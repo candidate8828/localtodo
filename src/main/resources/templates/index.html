@@ -22,27 +22,25 @@
 	<link rel="stylesheet" type="text/css"	href="/jquery-easyui-1.5.1/themes/gray/easyui.css" />
 	<link rel="stylesheet" type="text/css"	href="/jquery-easyui-1.5.1/themes/icon.css" />
 	<link rel="stylesheet" type="text/css"	href="/mCustomScrollbar-3.1.5/jquery.mCustomScrollbar.min.css" />
-	<link rel="stylesheet" type="text/css"	href="/editor.md-1.5.0/css/editormd.min.css" />
 
 	<script type="text/javascript" charset="utf-8" src="/jquery-2.1.1/jquery.min.js" ></script>
 	<script type="text/javascript" charset="utf-8" src="/jquery-easyui-1.5.1/jquery.easyui.min.js" ></script>
 	<script type="text/javascript" charset="utf-8" src="/jquery-easyui-1.5.1/locale/easyui-lang-zh_CN.js" ></script>
 	<script type="text/javascript" charset="utf-8" src="/bootstrap-3.3.7-dist/js/bootstrap.min.js" ></script>
 	<script type="text/javascript" charset="utf-8" src="/mCustomScrollbar-3.1.5/jquery.mCustomScrollbar.concat.min.js" ></script>
-	<script type="text/javascript" charset="utf-8" src="/editor.md-1.5.0/editormd.js" ></script>
 	
 </head>
 <body id="selfBody" class="easyui-layout">
 
 <div data-options="region:'north',border:false" style="height:60px;background:#B3DFDA;padding:10px">
-	<a href="#" id="shutdownBtn" >关闭服务</a>
+	<a href="javascript:void(0)" id="shutdownBtn" >关闭服务</a>
 </div>
 <div data-options="region:'west',split:true,title:'West',border:false" style="width:200px;padding:1px;">
 <div class="easyui-layout" data-options="fit:true">
 	<div data-options="region:'north',split:false" style="height:77px;overflow:hidden">
 	<div class="easyui-panel" title=" " style="width:100%;padding:0px;" data-options="closable:false,tools:'#tt'">
-	<a href="#" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%" >最新的文档</a>
-	<a href="#" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" onclick="showFolderTree();" >我的文件夹</a>
+	<a href="javascript:void(0)" id="newestFile" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%" onclick="getLogsOrderbyCreateDtDesc();">最新的文档</a>
+	<a href="javascript:void(0)" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" onclick="showFolderTree();" >我的文件夹</a>
 	</div>
 	</div>
 	<div id="folderdivId" data-options="region:'center'" >
@@ -51,7 +49,7 @@
 		</div>
 	</div>
 	<div data-options="region:'south',border:false" style="height:25px;overflow:hidden">
-	<a href="#" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" >垃圾箱</a>
+	<a href="javascript:void(0)" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" >垃圾箱</a>
 	</div>
 </div>
 <div id="tt">
@@ -66,8 +64,24 @@
 </div>
 </div>
 <div id="markdown-east" data-options="region:'east',split:true,title:'East',border:false" style="width:65%;padding:0px;">
+<!--  
+	<div id="markdown-content-div" style="width:100%;height:100%;margin: 0px auto 0px;">
 	<div id="markdown-editormd" style="width:100%;height:100%;margin: 0px auto 0px;">
-		<textarea style="display:none;">###Hello world!</textarea>
+		<textarea id="markdown-content-textarea" style="display:none;">###Hello world!</textarea>
+	</div>
+	</div>
+-->
+	<div class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north',split:false" style="boder:0px;height:42px;overflow:hidden">
+		<div class="easyui-panel" style="padding:0px;boder:0px;width:100%,height:100%">
+		<input id="selectedLogTitleId" class="easyui-textbox" style="boder:0px;border-radius:0px 0px 0px 0px;width:80%;height:40px;padding:12px" data-options="prompt:'标题'"/>
+		<input type="hidden" id="selectedLogId" name="selectedLogId" value="" />
+		<a href="javascript:void(0)" id="markdown-content-click-id" class="easyui-linkbutton c4" style="width:82px" onclick="javascript:updateOrSaveMd(this);">编辑</a>
+		</div>
+	</div>
+	<div id="" data-options="region:'center'" style="height:77px;overflow:hidden">
+	<iframe id="editorMdContentId" style="border:0px;width:100%;height:100%;position:absolute;left:0;right:0;bottom:0" src=""></iframe>
+	</div>
 	</div>
 </div><!-- ,collapsed:true -->
 <div data-options="region:'south',border:false" style="height:50px;background:#A9FACD;padding:10px;">south region</div>
@@ -77,6 +91,7 @@
 	<input id="searchText" type="text" class="easyui-textbox" data-options="buttonText:'查询',prompt:'Search...'" style="border-radius:0px;width:100%;height:32px;" />
 	</div>
 	<div id="centerId" data-options="region:'center'" style="overflow:hidden;">
+	<input type="hidden" name="rownum" id="loglistRownumId" value=""/>
 	<div id="titleListId" class="list-group" style="margin-bottom:0px;fit:true;border:false;plain:true">
 		<a href="javascript:void(0);" class="list-group-item" title="一个非常长并且不知道该怎么写的测试用的长长的标题"  onclick="javascript:changecolor(this);">
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">一2个非常长并且不知道该怎么写的测试用的长长的标题</h4>
@@ -86,63 +101,63 @@
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
-		<a href="#" class="list-group-item" title="asfasfsadfsadfdasf"  >
+		<a href="javascript:void(0)" class="list-group-item" title="asfasfsadfsadfdasf"  >
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
@@ -245,6 +260,11 @@ data-options="
 function changecolor(obj) {
 	$('.list-group-item').attr('style','');
 	$(obj).attr('style','background-color:rgba(118, 176, 243, 0.3)');
+	//console.log($(obj).children('.list-group-item-heading')[0].innerHTML);
+	$('#selectedLogTitleId').textbox('setValue', $(obj).children('.list-group-item-heading')[0].innerHTML );
+	$('#selectedLogId').val($(obj).attr('id'));
+	var iframeSrc = "/showIframeMarkdownHTMLByLogId?logId=" + $(obj).attr('id')+"&timestamp="+ ((new Date()).getTime()) ;
+	$('#editorMdContentId').attr('src', iframeSrc);
 }
 function reloadFolder() {
 	$('#tfolder').tree('reload');
@@ -329,6 +349,146 @@ function updateFolder() {
 	$('#dlgAddFolder').dialog('open');
 	$('#folderName').next('span').find('input').focus();
 }
+
+function getLogsOrderbyCreateDtDesc() {
+	var rownumValue = $('#loglistRownumId').val();
+	$.ajax({
+		type: 'POST',
+		url: '/getLogListByFolderId',
+		data: { 'folderId':-1,"rownum":rownumValue },
+		dataType: 'json',
+		success: function(data, textStatus){
+			//console.log(data);
+			if ("get_succeed" == data.state) {
+				if (data.counts > 0) {
+					var listStr = "";
+					for (var i=0;i<data.rows.length;i++) {
+						//console.log(data.rows[i]);
+						listStr += '<a href="javascript:void(0);" id="'+data.rows[i].id+'" class="list-group-item" title="'+ data.rows[i].logTitle +'"  onclick="javascript:changecolor(this);">'
+								+ '<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">'+ data.rows[i].logTitle +'</h4>'
+								+ '<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">'+ data.rows[i].logDesc +'</p>'
+								+ '</a>';
+					}
+					$('#titleListId').html(listStr);
+					listStr = null;
+					$('#titleListId').children()[0].click();
+				} else if (data.counts == 0) {
+					console.log("data.counts == 0, do nothing");// do nothing
+				}
+			} else if ("get_failed" == data.state) {
+				$.messager.show({
+    				title:'系统信息',
+    				msg: data.errorContent+"!",
+    				showSpeed:100,
+    				showType:'fade',
+    				timeout:400,
+    				style:{
+    					right:'',
+    					bottom:''
+    				}
+    			});
+			} else {
+				$.messager.show({
+    				title:'系统信息',
+    				msg:'发生未知问题！',
+    				showSpeed:100,
+    				showType:'fade',
+    				timeout:400,
+    				style:{
+    					right:'',
+    					bottom:''
+    				}
+    			});
+			}
+		},
+		error: function(e) { 
+			alert(e); 
+		}
+	});
+}
+
+function updateOrSaveMd(obj) {
+	if ("编辑" == $(obj).linkbutton("options").text) {
+		var selectedLogId = $('#selectedLogId').val();
+		var iframeSrc = "/showIframeMarkdownEditByLogId?logId=" + selectedLogId + "&timestamp="+ ((new Date()).getTime()) ;
+		$('#editorMdContentId').attr('src', iframeSrc);
+		$(obj).linkbutton({text:"保存"});
+	} else if ("保存" == $(obj).linkbutton("options").text) {
+		var markdownContent = $(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.getMarkdown();
+		var iframeId = $($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#markdownId').val();
+		var selectedLogId = $('#selectedLogId').val();
+		
+		if (selectedLogId == iframeId) {
+			$.ajax({
+				type: 'POST',
+				url: '/getLogListByFolderId',
+				data: { 'folderId':-1,"rownum":rownumValue },
+				dataType: 'json',
+				success: function(data, textStatus){
+					//console.log(data);
+					if ("get_succeed" == data.state) {
+						if (data.counts > 0) {
+							var listStr = "";
+							for (var i=0;i<data.rows.length;i++) {
+								//console.log(data.rows[i]);
+								listStr += '<a href="javascript:void(0);" id="'+data.rows[i].id+'" class="list-group-item" title="'+ data.rows[i].logTitle +'"  onclick="javascript:changecolor(this);">'
+										+ '<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">'+ data.rows[i].logTitle +'</h4>'
+										+ '<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">'+ data.rows[i].logDesc +'</p>'
+										+ '</a>';
+							}
+							$('#titleListId').html(listStr);
+							listStr = null;
+							$('#titleListId').children()[0].click();
+						} else if (data.counts == 0) {
+							console.log("data.counts == 0, do nothing");// do nothing
+						}
+					} else if ("get_failed" == data.state) {
+						$.messager.show({
+		    				title:'系统信息',
+		    				msg: data.errorContent+"!",
+		    				showSpeed:100,
+		    				showType:'fade',
+		    				timeout:400,
+		    				style:{
+		    					right:'',
+		    					bottom:''
+		    				}
+		    			});
+					} else {
+						$.messager.show({
+		    				title:'系统信息',
+		    				msg:'发生未知问题！',
+		    				showSpeed:100,
+		    				showType:'fade',
+		    				timeout:400,
+		    				style:{
+		    					right:'',
+		    					bottom:''
+		    				}
+		    			});
+					}
+				},
+				error: function(e) { 
+					alert(e); 
+				}
+			});
+		} else {
+			$.messager.show({
+				title:'系统信息',
+				msg:'选中的日志记录与编辑中的记录不匹配！',
+				showSpeed:100,
+				showType:'fade',
+				timeout:400,
+				style:{
+					right:'',
+					bottom:''
+				}
+			});
+		}
+		
+	}
+}
+
 $(document).ready(function(){
 	
 	$.extend($.fn.validatebox.defaults.rules, {
@@ -444,65 +604,16 @@ $(document).ready(function(){
              theme:"minimal-dark"
         });
     });
-
-});
-
-
-
-var testEditor;
-$(function(){
-	testEditor = editormd("markdown-editormd", {
-          width: "100%",
-          height: "100%",
-          path : '/editor.md-1.5.0/lib/',
-          onresize : function() {
-              //this.setMarkdown("state.loaded > bind onresize > window.onresize, editormd watch/unwatch/fullscreen/fullscreenExit/toolbar show|hide " + (new Date).getTime());
-              //console.log("onresize =>", this, this.id, this.settings);
-              $('#selfBody').layout('resize',{
-            	  region: 'east',
-            	  width:'80%',
-            		height:300
-              });
-          },
-          theme : "default",
-          previewTheme : "default",
-          editorTheme : "eclipse",
-          markdown : "",
-          codeFold : true,
-          //syncScrolling : false,
-          saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
-          searchReplace : true,
-          //watch : false,                // 关闭实时预览
-          htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
-          //toolbar  : false,             //关闭工具栏
-          //previewCodeHighlight : false, // 关闭预览 HTML 的代码块高亮，默认开启
-          emoji : true,
-          taskList : true,
-          tocm            : true,         // Using [TOCM]
-          tex : true,                   // 开启科学公式TeX语言支持，默认关闭
-          flowChart : true,             // 开启流程图支持，默认关闭
-          sequenceDiagram : true,       // 开启时序/序列图支持，默认关闭,
-          //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
-          //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
-          //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
-          //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
-          //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
-          imageUpload : true,
-          imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-          imageUploadURL : "./php/upload.php",
-          onload : function() {
-              console.log('onload', this);
-              //this.fullscreen();
-              //this.unwatch();
-              //this.watch().fullscreen();
-
-              //this.setMarkdown("#PHP");
-              //this.width("100%");
-              //this.height(480);
-              //this.resize("100%", 640);
-		}
+	
+	$(window).resize(function() {
+		//console.log(document.getElementById('selectedLogTitleId').parentNode.children[1].style.width);
+		$('#selectedLogTitleId').textbox('resize', (document.getElementById('selectedLogTitleId').parentNode.parentNode.style.width.replace('px','')*0.8)+'px' );
 	});
+	
+	$('#newestFile').click();
+
 });
+
 
 /*]]>*/
 </script>
