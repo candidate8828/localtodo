@@ -45,4 +45,38 @@
 	  from test.TB_WORK_LOG where IS_DELETE = '0' order by CREATE_DT desc limit ${startNum},${pageCount} 
 	</select>
 	
+	<update id="saveUpdateLogContent" parameterType="sample.jetty.domain.LogBean">
+	update test.TB_WORK_LOG t 
+	   set t.LAST_UPD_DT = #{lastUpdDt},
+	       t.LAST_UPDED_BY = #{lastUpdedBy},
+	       t.START_DT = #{startDt},
+	       t.END_DT = #{endDt},
+	       t.DEADLINE = #{deadline},
+	       t.LOG_TYPE = #{logType},
+	       t.LOG_STAT = #{logStat},
+	       t.IS_DELETE = #{isDelete},
+	       t.LOG_TITLE = #{logTitle},
+	       t.LOG_DESC = #{logDesc} 
+	 where t.ID = #{id} 
+	</update>
+	
+	<insert id="addNewLogContentRecord" parameterType="sample.jetty.domain.LogContentBean">
+	insert into test.TB_WORK_CONTENT (CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,LOG_ID,ORDER_BY,IS_DELETE,LOG_CONTENT)
+	values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy}, #{logId}, #{orderBy}, #{isDelete}, #{logContent})
+	</insert>
+	
+	<update id="updateLogContentRecord" parameterType="sample.jetty.domain.LogContentBean">
+	update test.TB_WORK_CONTENT t
+	   set t.LAST_UPD_DT = #{lastUpdDt},
+	       t.LAST_UPDED_BY = #{lastUpdedBy},
+	       t.LOG_ID = #{logId},
+	       t.ORDER_BY = #{orderBy},
+	       t.IS_DELETE = #{isDelete},
+	       t.LOG_CONTENT = #{logContent}
+	 where t.ID = #{id}
+	</update>
+	
+	<delete id="deleteLogContentRecord" parameterType="long">
+	delete from test.TB_WORK_CONTENT where ID = #{id}
+	</delete>
 </mapper>

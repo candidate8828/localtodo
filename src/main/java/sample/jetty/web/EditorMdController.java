@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.HtmlUtils;
+import org.thymeleaf.util.JavaScriptUtils;
 
 import sample.jetty.SampleJettyApplication;
 import sample.jetty.domain.LogBean;
@@ -41,7 +43,7 @@ public class EditorMdController {
 		if (0L != logId) {
 			model.addAttribute("logId", logId);
 			LogBean logBean = tEditorMdService.selectEditorMdById(logId);
-			logBean.setLogContent("<a href=\"www.baidu.com\">百度链接</a>\r\n```\r\n<textarea>this is a test</textarea>\r\n```");
+			//logBean.setLogContent("<a href=\"www.baidu.com\">百度链接</a>\r\n```\r\n<textarea>this is a test</textarea>\r\n```");
 			model.addAttribute("log", logBean);
 			return "editorHTML.md";
 		} else {
@@ -54,7 +56,7 @@ public class EditorMdController {
 		if (0L != logId) {
 			model.addAttribute("logId", logId);
 			LogBean logBean = tEditorMdService.selectEditorMdById(logId);
-			logBean.setLogContent("<a href=\"www.baidu.com\">百度链接</a>\r\n```\r\n<textarea>this is a test</textarea>\r\n```");
+			//logBean.setLogContent("<a href=\"www.baidu.com\">百度链接</a>\r\n```\r\n<textarea>this is a test</textarea>\r\n```");
 			model.addAttribute("log", logBean);
 			return "editorEDIT.md";
 		} else {
@@ -90,6 +92,7 @@ public class EditorMdController {
 			String ctime = formatter.format(date);
 			
 			LogBean logBean = tEditorMdService.selectEditorMdById(logId);
+			logBean.setLastUpdDt(date);
 			// 存放一个title命名的空txt文件,已有就不管
 			String chineseTxt = filesDirStr + File.separator + logId +"."+logBean.getLogTitle().replaceAll(" ", "")+".txt";
 			File chineseFile = new File(chineseTxt);
@@ -102,7 +105,14 @@ public class EditorMdController {
 			
 			try{
 				// 执行入库操作
-				// TODO 存入数据库
+				logBean.setLogContent(logContent);
+				String logDesc = HtmlUtils.htmlEscape(logContent);
+				if (logDesc.length() > 500) {
+					logDesc = logDesc.substring(0, 499);
+				}
+				logBean.setLogDesc(logDesc);
+				tEditorMdService.saveUpdateLogContent(logBean);
+				
 				// 执行写入文件操作
 				FileOutputStream outStream = null;
 				OutputStreamWriter outStreamWriter = null;
@@ -125,13 +135,14 @@ public class EditorMdController {
 					outStream = new FileOutputStream(logMdFile);
 					outStreamWriter = new OutputStreamWriter(outStream);
 					bufWriter = new BufferedWriter(outStreamWriter);
-					printWriter = new PrintWriter(bufWriter);
-					printWriter.write(logBean.getLogContent());
-					printWriter.flush();
+					//printWriter = new PrintWriter(bufWriter);
+					bufWriter.write(logBean.getLogContent());
+					bufWriter.flush();
 				} catch(Exception e) {
 					// 入库成功，但是保存文件失败，则返回入库成功，但是保存文件失败  db_succeed
 					resultMap.put("state", "update_db_succeed");
 					resultMap.put("errorContent", "occured errors when saving into .md file\r\n" + e.getMessage());
+					logger.error("EditorMdController.updateMarkdownEditByLogId", e);
 				} finally {
 					try {
 						if (null != printWriter) {
@@ -166,6 +177,7 @@ public class EditorMdController {
 				// 如果入库失败,则返回入库失败的信息 failed
 				resultMap.put("state", "update_db_failed");
 				resultMap.put("errorContent", "occured errors when saving into db\r\n" + e.getMessage());
+				logger.error("EditorMdController.updateMarkdownEditByLogId", e);
 			}
 		} else {
 			// logId 为0,直接返回保存报错的信息 failed

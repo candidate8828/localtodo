@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import sample.jetty.domain.LogBean;
+import sample.jetty.domain.LogContentBean;
 
 @Repository
 public class TEditorMdDao {
@@ -36,5 +37,32 @@ public class TEditorMdDao {
 		paraMap.put("startNum", startNum);
 		paraMap.put("pageCount", pageCount);
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyCreateDt", paraMap);
+	}
+	
+	public boolean saveUpdateLogContent(LogBean logBean) throws Exception {
+		boolean result = false;
+		if (logBean.getId() <= 0L) {
+			throw new Exception("the logBean's id is <= 0!");
+		}
+		result = this.sqlSessionTemplate.update("SAMPLE_EDITORMD_MAPPER.saveUpdateLogContent", logBean) > 0;
+		return result;
+	}
+	
+	public int addNewLogContentRecord(LogContentBean logContentBean) throws Exception {
+		return this.sqlSessionTemplate.insert("SAMPLE_EDITORMD_MAPPER.addNewLogContentRecord", logContentBean);
+	}
+	
+	public int updateLogContentRecord(LogContentBean logContentBean) throws Exception {
+		if (logContentBean.getId() <= 0L) {
+			throw new Exception("the logContentBean's id is <= 0!");
+		}
+		return this.sqlSessionTemplate.update("SAMPLE_EDITORMD_MAPPER.updateLogContentRecord", logContentBean);
+	}
+	
+	public int deleteLogContentRecord(long id) throws Exception {
+		if (id <= 0L) {
+			throw new Exception("the logContentBean's id is <= 0!");
+		}
+		return this.sqlSessionTemplate.delete("SAMPLE_EDITORMD_MAPPER.deleteLogContentRecord", id);
 	}
 }

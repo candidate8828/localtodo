@@ -1,6 +1,7 @@
 package sample.jetty.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -67,6 +68,135 @@ public class TEditorMdService {
 			
 		}
 		return ((null==resultList)?(new ArrayList<LogBean>()):resultList);
+	}
+	
+	@Transactional
+	public boolean saveUpdateLogContent(LogBean logBean) throws Exception {
+		boolean result = false;
+		int logContentMaxLength = 2000;
+		if (logBean.getId() <= 0L) {
+			throw new Exception("the logBean's id is <= 0!");
+		}
+		tEditorMdDao.saveUpdateLogContent(logBean);
+		List<LogContentBean> contentList = tEditorMdDao.selectEditorMdContentListById(logBean.getId());
+		String logContent = logBean.getLogContent();
+		LogContentBean newLogContentBean = null;
+		if (null == contentList || contentList.isEmpty()) {// 如果原来数据库中没有对应的 logContent 记录
+			// 判断后直接insert
+			if (logContent.length() > logContentMaxLength) { // 大于单个logcontent的最大长度，则存入多条记录
+				int pieceNum = logContent.length() / logContentMaxLength;
+				int extralNum = logContent.length() % logContentMaxLength;
+				pieceNum = (extralNum > 0) ? (pieceNum + 1) : (pieceNum);
+				List<LogContentBean> newLogContentBeanlist = new ArrayList<LogContentBean>();
+				for (int i = 0; i < pieceNum; i++) {
+					newLogContentBean = new LogContentBean();
+					newLogContentBean.setCreatedBy(logBean.getLastUpdedBy());
+					newLogContentBean.setCreateDt(logBean.getLastUpdDt());
+					newLogContentBean.setLastUpdedBy(logBean.getLastUpdedBy());
+					newLogContentBean.setLastUpdDt(logBean.getLastUpdDt());
+					newLogContentBean.setLogId(logBean.getId());
+					newLogContentBean.setOrderBy(i+1);
+					if (i == pieceNum-1) {
+						newLogContentBean.setLogContent(logContent.substring(i*logContentMaxLength));
+					} else {
+						newLogContentBean.setLogContent(logContent.substring(i*logContentMaxLength, (i+1)*logContentMaxLength));
+					}
+					newLogContentBeanlist.add(newLogContentBean);
+				}
+				for (LogContentBean logContentBean : newLogContentBeanlist) {
+					tEditorMdDao.addNewLogContentRecord(logContentBean);
+				}
+			} else { // 不超过(<=)单个logcontent的最大长度，则存入一条记录
+				newLogContentBean = new LogContentBean();
+				newLogContentBean.setCreatedBy(logBean.getLastUpdedBy());
+				newLogContentBean.setCreateDt(logBean.getLastUpdDt());
+				newLogContentBean.setLastUpdedBy(logBean.getLastUpdedBy());
+				newLogContentBean.setLastUpdDt(logBean.getLastUpdDt());
+				newLogContentBean.setLogId(logBean.getId());
+				newLogContentBean.setOrderBy(1);
+				newLogContentBean.setLogContent(logContent);
+				tEditorMdDao.addNewLogContentRecord(newLogContentBean);
+			}
+		} else {// 如果原来数据库中有对应的 logContent 记录存在
+			// 判断后看具体情况具体处理
+			if (logContent.length() > logContentMaxLength) { // 大于单个logcontent的最大长度，则存入多条记录
+				int pieceNum = logContent.length() / logContentMaxLength;
+				int extralNum = logContent.length() % logContentMaxLength;
+				pieceNum = (extralNum > 0) ? (pieceNum + 1) : (pieceNum);
+				
+				if (contentList.size() < pieceNum) {  // 如果新记录数比原来更多
+					long createdBy = -1L;
+					Date createDt = null;
+					for (int i = 0; i < pieceNum; i++) {
+						if (i+1 <= contentList.size()) {
+							newLogContentBean = contentList.get(i);
+							createdBy = newLogContentBean.getCreatedBy();
+							createDt = newLogContentBean.getCreateDt();
+							
+							newLogContentBean.setLastUpdedBy(logBean.getLastUpdedBy());
+							newLogContentBean.setLastUpdDt(logBean.getLastUpdDt());
+							newLogContentBean.setLogId(logBean.getId());
+							newLogContentBean.setOrderBy(i+1);
+							newLogContentBean.setLogContent(logContent.substring(i*logContentMaxLength, (i+1)*logContentMaxLength));
+							tEditorMdDao.updateLogContentRecord(newLogContentBean);
+						} else {
+							newLogContentBean = new LogContentBean();
+							newLogContentBean.setCreatedBy(createdBy);
+							newLogContentBean.setCreateDt(createDt);
+							newLogContentBean.setLastUpdedBy(logBean.getLastUpdedBy());
+							newLogContentBean.setLastUpdDt(logBean.getLastUpdDt());
+							newLogContentBean.setLogId(logBean.getId());
+							newLogContentBean.setOrderBy(i+1);
+							if (i == pieceNum-1) {
+								newLogContentBean.setLogContent(logContent.substring(i*logContentMaxLength));
+							} else {
+								newLogContentBean.setLogContent(logContent.substring(i*logContentMaxLength, (i+1)*logContentMaxLength));
+							}
+							tEditorMdDao.addNewLogContentRecord(newLogContentBean);
+						}
+						newLogContentBean = null;
+					}
+				} else { // 如果新记录数比原来更少或相同
+					for (int i=0; i < contentList.size(); i++) {
+						newLogContentBean = contentList.get(i);
+						if (i <= pieceNum - 1) {
+							newLogContentBean.setLastUpdedBy(logBean.getLastUpdedBy());
+							newLogContentBean.setLastUpdDt(logBean.getLastUpdDt());
+							newLogContentBean.setLogId(logBean.getId());
+							newLogContentBean.setOrderBy(i+1);
+							if (i == pieceNum-1) {
+								newLogContentBean.setLogContent(logContent.substring(i*logContentMaxLength));
+							} else {
+								newLogContentBean.setLogContent(logContent.substring(i*logContentMaxLength, (i+1)*logContentMaxLength));
+							}
+							tEditorMdDao.updateLogContentRecord(newLogContentBean);
+						} else {
+							// 删除多余的
+							tEditorMdDao.deleteLogContentRecord(newLogContentBean.getId());
+						}
+						newLogContentBean = null;
+					}
+				}
+			} else { // 不超过(<=)单个logcontent的最大长度，则将最新的 logContent update到第一个记录中,后面的记录设置为空字符串
+				for (int i = 0; i < contentList.size(); i++) {
+					if (i == 0) {
+						newLogContentBean = contentList.get(i);
+						newLogContentBean.setLastUpdedBy(logBean.getLastUpdedBy());
+						newLogContentBean.setLastUpdDt(logBean.getLastUpdDt());
+						newLogContentBean.setLogId(logBean.getId());
+						newLogContentBean.setOrderBy(i+1);
+						newLogContentBean.setLogContent(logContent);
+						tEditorMdDao.updateLogContentRecord(newLogContentBean);
+					} else {
+						newLogContentBean = contentList.get(i);
+						tEditorMdDao.deleteLogContentRecord(newLogContentBean.getId());
+					}
+					newLogContentBean = null;
+				}
+			}
+		}
+		result = true;
+		return result;
 	}
 	
 }
