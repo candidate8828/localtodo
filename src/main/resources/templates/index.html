@@ -281,6 +281,7 @@ function changecolor(obj) {
 	var iframeId = '';
 	var selectedLogId = '';
 	var hasUpdated = 'false';
+	var selectedLogTitle = $('#selectedLogTitleId').textbox('getValue');
 	try{
 		markdownContent = $(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.getMarkdown();
 	}catch(e){markdownContent='';}
@@ -300,7 +301,7 @@ function changecolor(obj) {
 		$.ajax({
 			type: 'POST',
 			url: '/updateMarkdownEditByLogId',
-			data: { 'logId':selectedLogId, "logContent":markdownContent },
+			data: { 'logId':selectedLogId, "logContent":markdownContent, "logTitle":selectedLogTitle },
 			dataType: 'json',
 			success: function(data, textStatus){
 				// 2.打开新选中的记录
@@ -473,12 +474,13 @@ function updateOrSaveMd(obj) {
 		var markdownContent = $(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.getMarkdown();
 		var iframeId = $($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#markdownId').val();
 		var selectedLogId = $('#selectedLogId').val();
+		var selectedLogTitle = $('#selectedLogTitleId').textbox('getValue');
 		
 		if (selectedLogId == iframeId) {
 			$.ajax({
 				type: 'POST',
 				url: '/updateMarkdownEditByLogId',
-				data: { 'logId':selectedLogId, "logContent":markdownContent },
+				data: { 'logId':selectedLogId, "logContent":markdownContent, "logTitle":selectedLogTitle },
 				dataType: 'json',
 				success: function(data, textStatus){
 					//console.log(data);

@@ -74,6 +74,7 @@ public class EditorMdController {
 	@RequestMapping(value="/updateMarkdownEditByLogId", method=RequestMethod.POST)
 	@ResponseBody
 	public Map<String, Object> updateMarkdownEditByLogId(@RequestParam(value="logId", required=false, defaultValue="0") long logId, 
+			@RequestParam(value="logTitle", required=false, defaultValue="-1") String logTitle, 
 			@RequestParam(value="logContent", required=false, defaultValue="") String logContent, HttpServletRequest request, Model model) {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		
@@ -93,6 +94,7 @@ public class EditorMdController {
 			
 			LogBean logBean = tEditorMdService.selectEditorMdById(logId);
 			logBean.setLastUpdDt(date);
+			logBean.setLogTitle(HtmlUtils.htmlEscape(logTitle));
 			// 存放一个title命名的空txt文件,已有就不管
 			String chineseTxt = filesDirStr + File.separator + logId +"."+logBean.getLogTitle().replaceAll(" ", "")+".txt";
 			File chineseFile = new File(chineseTxt);
