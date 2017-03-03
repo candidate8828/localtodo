@@ -15,7 +15,7 @@ public class TEditorMdDao {
 	@Autowired
     private SqlSessionTemplate sqlSessionTemplate;
 	
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "hiding" })
 	public <LogContentBean> List<LogContentBean> selectEditorMdContentListById(long id) throws Exception {
 		return (List<LogContentBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectEditorMdContentListById", id);
 	}
@@ -37,6 +37,23 @@ public class TEditorMdDao {
 		paraMap.put("startNum", startNum);
 		paraMap.put("pageCount", pageCount);
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyCreateDt", paraMap);
+	}
+	
+	@SuppressWarnings({ "hiding", "unchecked" })
+	public <LogBean> List<LogBean> selectLogListOrderbyFolderId(long folderId, int startNum, int pageCount) throws Exception {
+		HashMap<String, Long> paraMap = new HashMap<String, Long>();
+		paraMap.put("folderId", new Long(folderId));
+		paraMap.put("startNum", new Long(startNum));
+		paraMap.put("pageCount", new Long(pageCount));
+		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyFolderId", paraMap);
+	}
+	
+	@SuppressWarnings({ "hiding", "unchecked" })
+	public <LogBean> List<LogBean> selectDeletedLogListOrderbyCreateDt(int startNum, int pageCount) throws Exception {
+		HashMap<String, Long> paraMap = new HashMap<String, Long>();
+		paraMap.put("startNum", new Long(startNum));
+		paraMap.put("pageCount", new Long(pageCount));
+		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectDeletedLogListOrderbyCreateDt", paraMap);
 	}
 	
 	public boolean saveUpdateLogContent(LogBean logBean) throws Exception {
@@ -65,4 +82,9 @@ public class TEditorMdDao {
 		}
 		return this.sqlSessionTemplate.delete("SAMPLE_EDITORMD_MAPPER.deleteLogContentRecord", id);
 	}
+	
+	public long addNewLogRecord(LogBean logBean) throws Exception {
+		return this.sqlSessionTemplate.insert("SAMPLE_EDITORMD_MAPPER.addNewLogRecord", logBean);
+	}
+	
 }

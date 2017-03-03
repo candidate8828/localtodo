@@ -45,6 +45,18 @@
 	  from test.TB_WORK_LOG where IS_DELETE = '0' order by CREATE_DT desc limit ${startNum},${pageCount} 
 	</select>
 	
+	<select id="selectLogListOrderbyFolderId" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where IS_DELETE = '0' 
+	   and exists (select 1 from test.TB_LOG_FOLDER where TB_LOG_FOLDER.LOG_ID = TB_WORK_LOG.ID and TB_LOG_FOLDER.FOLDER_ID = #{folderId}) 
+	 order by CREATE_DT desc limit ${startNum},${pageCount} 
+	</select>
+	
+	<select id="selectDeletedLogListOrderbyCreateDt" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where IS_DELETE = '1' order by CREATE_DT desc limit ${startNum},${pageCount} 
+	</select>
+	
 	<update id="saveUpdateLogContent" parameterType="sample.jetty.domain.LogBean">
 	update test.TB_WORK_LOG t 
 	   set t.LAST_UPD_DT = #{lastUpdDt},
@@ -79,4 +91,11 @@
 	<delete id="deleteLogContentRecord" parameterType="long">
 	delete from test.TB_WORK_CONTENT where ID = #{id}
 	</delete>
+	
+	<insert id="addNewLogRecord" parameterType="sample.jetty.domain.LogBean">
+	insert into test.TB_WORK_LOG (CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC)
+	values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy}, #{startDt}, #{endDt}, #{deadline}, #{logType}, #{logStat}, #{isDelete}, #{logTitle}, #{logDesc})
+	</insert>
+	
+	
 </mapper>

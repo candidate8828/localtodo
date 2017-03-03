@@ -97,4 +97,14 @@ public class TFolderDao {
 		int resultInt = this.sqlSessionTemplate.update("SAMPLE_FOLDER_MAPPER.updateFolderById", folder);
 		return resultInt;
 	}
+	
+	public long addFolderAndLogRelation(long parentFolderId, long logId) throws Exception {
+		if (parentFolderId <= 0 || logId <= 0) {
+			throw new Exception("parentFolderId <= 0 or logId <= 0");
+		}
+		HashMap<String, Object> paramMap = new HashMap<String, Object>();
+		paramMap.put("parentFolderId", parentFolderId);
+		paramMap.put("logId", logId);
+		return this.sqlSessionTemplate.update("SAMPLE_FOLDER_MAPPER.addFolderAndLogRelation", paramMap);
+	}
 }

@@ -227,16 +227,16 @@ public class EditorMdController {
 			HttpServletRequest request) {
 		int pageCount = 20;
 		/*
-		 * folderId -1: 最新的文档; -2: 垃圾箱
+		 * folderId 0:最新的文档; -1:我的文件夾 ; -2: 垃圾箱  (delete==1)
 		 */
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		if (0 == folderId) {
-			resultMap.put("state", "get_failed");
-			resultMap.put("errorContent", "folderId is 0");
-			resultMap.put("rows", null);
-			resultMap.put("counts", 0);
-			return resultMap;
-		}
+//		if (0 == folderId) {
+//			resultMap.put("state", "get_failed");
+//			resultMap.put("errorContent", "folderId is 0");
+//			resultMap.put("rows", null);
+//			resultMap.put("counts", 0);
+//			return resultMap;
+//		}
 		List<LogBean> logBeanList = null;
 		try {
 			logBeanList = tEditorMdService.selectLogListByFolderId(folderId, rownum - pageCount, pageCount);
@@ -254,5 +254,20 @@ public class EditorMdController {
 		}
 		return resultMap;
 	}
-
+	
+	
+	@RequestMapping("/addNewLog")
+	@ResponseBody
+	public Map<String, Object> addNewLog(@RequestParam(value="parentFolderId", required=false, defaultValue="-1") long parentFolderId, 
+			HttpServletRequest request) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		try {
+			tEditorMdService.addNewLog(parentFolderId);
+		} catch (Exception e) {
+			logger.error("EditorMdController.addNewLog", e);
+		}
+		return resultMap;
+	}
+	
+	
 }

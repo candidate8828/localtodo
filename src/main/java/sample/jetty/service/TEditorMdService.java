@@ -1,6 +1,7 @@
 package sample.jetty.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import sample.jetty.dao.TEditorMdDao;
+import sample.jetty.dao.TFolderDao;
 import sample.jetty.domain.LogBean;
 import sample.jetty.domain.LogContentBean;
 
@@ -21,6 +23,8 @@ public class TEditorMdService {
 	
 	@Autowired
 	private TEditorMdDao tEditorMdDao;
+	@Autowired
+	private TFolderDao tFolderDao;
 	
 	@Transactional(readOnly=true)
 	public LogBean selectEditorMdById(long id) {
@@ -58,14 +62,16 @@ public class TEditorMdService {
 	@Transactional(readOnly=true)
 	public List<LogBean> selectLogListByFolderId(long folderId, int startNum, int pageCount) throws Exception {
 		List<LogBean> resultList = null;
-		// -1: 最新的文档
-		if (-1L == folderId) {
+		// 0: 最新的文档
+		if (0L == folderId) {
 			resultList = tEditorMdDao.selectLogListOrderbyCreateDt(startNum, pageCount);
-		} else // -2: 垃圾箱
-			if (-2L == folderId) {
-			
+		} // -1: 我的文件夹
+		else if (-1L == folderId) {
+			resultList = tEditorMdDao.selectLogListOrderbyFolderId(-1L, startNum, pageCount);
+		} else if (-2L == folderId) { // -2: 垃圾箱  (delete==1)
+			resultList = tEditorMdDao.selectDeletedLogListOrderbyCreateDt(startNum, pageCount);
 		} else {
-			
+			resultList = tEditorMdDao.selectLogListOrderbyFolderId(folderId, startNum, pageCount);
 		}
 		return ((null==resultList)?(new ArrayList<LogBean>()):resultList);
 	}
@@ -199,4 +205,22 @@ public class TEditorMdService {
 		return result;
 	}
 	
+	@Transactional
+	@SuppressWarnings("unused")
+	public boolean addNewLog(long parentFolderId) throws Exception {
+		Date date = Calendar.getInstance().getTime();
+		LogBean logBean = new LogBean();
+		logBean.setCreateDt(date);
+		logBean.setLastUpdDt(date);
+		logBean.setLogContent("");
+		logBean.setLogDesc("");
+		logBean.setCreatedBy(1L);
+		logBean.setLastUpdedBy(1L);
+		logBean.setLogTitle("md");
+		logBean.setStartDt(date);
+		// 保存入库
+		long newLogId = tEditorMdDao.addNewLogRecord(logBean);
+		long newId = tFolderDao.addFolderAndLogRelation(parentFolderId, newLogId);
+		return true;
+	}
 }
