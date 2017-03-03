@@ -92,7 +92,7 @@
 	delete from test.TB_WORK_CONTENT where ID = #{id}
 	</delete>
 	
-	<insert id="addNewLogRecord" parameterType="sample.jetty.domain.LogBean">
+	<insert id="addNewLogRecord" useGeneratedKeys="true" keyProperty="id" parameterType="sample.jetty.domain.LogBean">
 	insert into test.TB_WORK_LOG (CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC)
 	values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy}, #{startDt}, #{endDt}, #{deadline}, #{logType}, #{logStat}, #{isDelete}, #{logTitle}, #{logDesc})
 	</insert>

@@ -219,8 +219,8 @@ public class TEditorMdService {
 		logBean.setLogTitle("md");
 		logBean.setStartDt(date);
 		// 保存入库
-		long newLogId = tEditorMdDao.addNewLogRecord(logBean);
-		long newId = tFolderDao.addFolderAndLogRelation(parentFolderId, newLogId);
+		tEditorMdDao.addNewLogRecord(logBean);
+		long newId = tFolderDao.addFolderAndLogRelation(parentFolderId, logBean.getId());
 		return true;
 	}
 }

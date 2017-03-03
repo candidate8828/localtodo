@@ -99,7 +99,7 @@ public class TFolderDao {
 	}
 	
 	public long addFolderAndLogRelation(long parentFolderId, long logId) throws Exception {
-		if (parentFolderId <= 0 || logId <= 0) {
+		if (parentFolderId < -2 || logId <= 0) {
 			throw new Exception("parentFolderId <= 0 or logId <= 0");
 		}
 		HashMap<String, Object> paramMap = new HashMap<String, Object>();

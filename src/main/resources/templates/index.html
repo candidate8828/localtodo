@@ -43,13 +43,13 @@
 	<a href="javascript:void(0)" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" onclick="getLogsOrderbyCreateDtDesc(-1);" >我的文件夹</a><!-- showFolderTree(); -->
 	</div>
 	</div>
-	<div id="folderdivId" data-options="region:'center'" >
+	<div id="folderdivId" data-options="region:'center'" style="background-color:#CEE9FF">
 		<div style="margin-bottom:0px;fit:true;border:false;plain:true;">
 		<ul id="tfolder"></ul>
 		</div>
 	</div>
 	<div data-options="region:'south',border:false" style="height:25px;overflow:hidden">
-	<a href="javascript:void(0)" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" >垃圾箱</a>
+	<a href="javascript:void(0)" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" onclick="getLogsOrderbyCreateDtDesc(-2);">垃圾箱</a>
 	</div>
 </div>
 <div id="tt">
@@ -72,7 +72,7 @@
 	</div>
 -->
 	<div class="easyui-layout" data-options="fit:true">
-	<div data-options="region:'north',split:false" style="boder:0px;height:42px;overflow:hidden">
+	<div data-options="region:'north',split:false" style="boder:0px;height:42px;overflow:hidden;background-color:#CEE9FF">
 		<!-- div class="easyui-panel" style="padding:0px;boder:0px;width:100%,height:100%" -->
 		<input type="hidden" id="selectedLogId" name="selectedLogId" value="" />
 		<div class="row">
@@ -90,15 +90,15 @@
 	</div>
 	</div>
 </div><!-- ,collapsed:true -->
-<div data-options="region:'south',border:false" style="height:50px;background:#CEE9FF;padding:10px;">
-<div style="text-align:center"><span class="label label-info" >自己使用的记事本</span></div>
+<div data-options="region:'south',border:true" style="height:100px;background:#CEE9FF;padding:10px;">
+<div style="text-align:center"><span class="label label-info" >显示log所在文件夹</span></div>
 </div>
-<div data-options="region:'center',title:' ',border:false">
-<div class="easyui-layout" data-options="fit:true">
+<div data-options="region:'center',title:' ',border:false" >
+<div class="easyui-layout" data-options="fit:true" >
 	<div data-options="region:'north',split:false" style="height:34px;overflow:hidden">
 	<input id="searchText" type="text" class="easyui-textbox" data-options="buttonText:'新建',prompt:'Search...'" style="border-radius:0px;width:100%;height:32px;" />
 	</div>
-	<div id="centerId" data-options="region:'center'" style="overflow:hidden;">
+	<div id="centerId" data-options="region:'center'" style="overflow:hidden;background-color:#CEE9FF">
 	<input type="hidden" name="rownum" id="loglistRownumId" value=""/>
 	<div id="titleListId" class="list-group" style="margin-bottom:0px;fit:true;border:false;plain:true">
 		<a href="javascript:void(0);" class="list-group-item" title="一个非常长并且不知道该怎么写的测试用的长长的标题"  onclick="javascript:changecolor(this);">
@@ -266,8 +266,8 @@ data-options="
 <script type="text/javascript" >
 /*<![CDATA[*/
 function changecolor(obj) {
-	$('.list-group-item').attr('style','');
-	$(obj).attr('style','background-color:#CEE9FF');
+	$('.list-group-item').attr('style','background-color:#FFEFFF');
+	$(obj).attr('style','background-color:#2EE9FF');
 	$('#markdown-content-click-id').linkbutton({text:"编辑"});
 	/*
 	if ( $(obj).attr('id')  ==  $('#selectedLogId').val() ) {
@@ -434,6 +434,17 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 					$('#titleListId').children()[0].click();
 				} else if (data.counts == 0) {
 					console.log("data.counts == 0, do nothing");// do nothing
+					$.messager.show({
+	    				title:'系统信息',
+	    				msg: "此文件夹下无数据!",
+	    				showSpeed:100,
+	    				showType:'fade',
+	    				timeout:4000,
+	    				style:{
+	    					right:'',
+	    					bottom:''
+	    				}
+	    			});
 				}
 			} else if ("get_failed" == data.state) {
 				$.messager.show({
