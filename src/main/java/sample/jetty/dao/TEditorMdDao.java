@@ -84,7 +84,8 @@ public class TEditorMdDao {
 	}
 	
 	public long addNewLogRecord(LogBean logBean) throws Exception {
-		return this.sqlSessionTemplate.insert("SAMPLE_EDITORMD_MAPPER.addNewLogRecord", logBean);
+		long result = this.sqlSessionTemplate.insert("SAMPLE_EDITORMD_MAPPER.addNewLogRecord", logBean);
+		return result;
 	}
 	
 }
