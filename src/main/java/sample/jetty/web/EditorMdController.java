@@ -263,11 +263,69 @@ public class EditorMdController {
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		try {
 			tEditorMdService.addNewLog(parentFolderId);
+			resultMap.put("state", "add_succeed");
+			resultMap.put("errorContent", "");
 		} catch (Exception e) {
 			logger.error("EditorMdController.addNewLog", e);
+			resultMap.put("state", "add_failed");
+			resultMap.put("errorContent", "occured errors "+e.getMessage());
 		}
 		return resultMap;
 	}
 	
+	@RequestMapping("/changeTitle")
+	@ResponseBody
+	public Map<String, Object> changeTitle(@RequestParam(value="logId", required=false, defaultValue="0") long logId, 
+			@RequestParam(value="logTitle", required=false, defaultValue="-1") String logTitle,
+			HttpServletRequest request, Model model) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		
+		EmbedMySqlServer mysqldbServer = SampleJettyApplication.MAIN_THREAD_LOCAL.get("embedMysqlServer");
+		String dbPath = mysqldbServer.getEmbedMySqlHome();
+		File logFileDir = new File(dbPath).getParentFile().getAbsoluteFile();
+		String filesDirStr = logFileDir.getAbsolutePath() + File.separator + "files" + File.separator + logId;
+		
+		if (0L != logId) {
+			File selecedLogFile = new File(filesDirStr);
+			if (!selecedLogFile.exists()) {
+				selecedLogFile.mkdirs();
+			}
+			Date date = Calendar.getInstance().getTime();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd.HHmmss.SSS");
+			String ctime = formatter.format(date);
+			
+			LogBean logBean = tEditorMdService.selectEditorMdById(logId);
+			logBean.setLastUpdDt(date);
+			logBean.setLogTitle(HtmlUtils.htmlEscape(logTitle));
+			// 存放一个title命名的空txt文件,已有就不管
+			String chineseTxt = filesDirStr + File.separator + logId +"."+logBean.getLogTitle().replaceAll(" ", "")+".txt";
+			File chineseFile = new File(chineseTxt);
+			try {
+				if (!chineseFile.exists()) {
+					chineseFile.createNewFile();
+				}
+			} catch (Exception e) { // 如果这里有错是可以忽略的
+			}
+			
+			try{
+				// 执行入库操作
+				tEditorMdService.saveUpdateLogContent(logBean);
+				
+				// 都成功  返回 succeed
+				resultMap.put("state", "update_succeed");
+				resultMap.put("errorContent", "");
+			} catch(Exception e){
+				// 如果入库失败,则返回入库失败的信息 failed
+				resultMap.put("state", "update_db_failed");
+				resultMap.put("errorContent", "occured errors when saving into db\r\n" + e.getMessage());
+				logger.error("EditorMdController.updateMarkdownEditByLogId", e);
+			}
+		} else {
+			// logId 为0,直接返回保存报错的信息 failed
+			resultMap.put("state", "update_logid_failed");
+			resultMap.put("errorContent", "logId is null");
+		}
+		return resultMap;
+	}
 	
 }

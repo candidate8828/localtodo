@@ -19,6 +19,7 @@
 	-->
 	
     <link rel="stylesheet" type="text/css"	href="/bootstrap-3.3.7-dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css"	href="/bootstrap-contextmenu-0.3.4/bootstrap-combined.min.css" />
 	<link rel="stylesheet" type="text/css"	href="/jquery-easyui-1.5.1/themes/default/easyui.css" />
 	<link rel="stylesheet" type="text/css"	href="/jquery-easyui-1.5.1/themes/icon.css" />
 	<link rel="stylesheet" type="text/css"	href="/mCustomScrollbar-3.1.5/jquery.mCustomScrollbar.min.css" />
@@ -27,6 +28,7 @@
 	<script type="text/javascript" charset="utf-8" src="/jquery-easyui-1.5.1/jquery.easyui.min.js" ></script>
 	<script type="text/javascript" charset="utf-8" src="/jquery-easyui-1.5.1/locale/easyui-lang-zh_CN.js" ></script>
 	<script type="text/javascript" charset="utf-8" src="/bootstrap-3.3.7-dist/js/bootstrap.min.js" ></script>
+	<script type="text/javascript" charset="utf-8" src="/bootstrap-contextmenu-0.3.4/bootstrap-contextmenu-0.3.4.js" ></script>
 	<script type="text/javascript" charset="utf-8" src="/mCustomScrollbar-3.1.5/jquery.mCustomScrollbar.concat.min.js" ></script>
 	
 </head>
@@ -101,6 +103,7 @@
 	<div id="centerId" data-options="region:'center'" style="overflow:hidden;background-color:#CEE9FF">
 	<input type="hidden" name="rownum" id="loglistRownumId" value=""/>
 	<div id="titleListId" class="list-group" style="margin-bottom:0px;fit:true;border:false;plain:true">
+		<!-- 
 		<a href="javascript:void(0);" class="list-group-item" title="一个非常长并且不知道该怎么写的测试用的长长的标题"  onclick="javascript:changecolor(this);">
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">一2个非常长并且不知道该怎么写的测试用的长长的标题</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">就的内容看看到底能不能就的内容看看到底能不能就的内容看看到底能不能就的内容看看到底能不能就的内容看看到底能不能就的内容看看到底能不能就的内容看看到底能不能就的内容看看到底能不能出来就是来</p>
@@ -169,6 +172,7 @@
 			<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">asfasfsadfsadfdasf</h4>
 			<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">asfdasfsaasdfsafdsasafdsafsafdsafasfasdfsaf</p>
 		</a>
+		-->
 	</div>
 <!-- 
 	<div class="easyui-tabs" data-options="fit:true,border:false,plain:true">
@@ -201,10 +205,11 @@
 	<div onclick="addlog()" data-options="iconCls:'icon-help'">添加记录</div>
 </div>
 
-<div id="mm2" style="width:100px;">
-	<div>Help</div>
-	<div>Update</div>
-	<div>About</div>
+<div id="logMenuId" style="background-color:2EE9FF">
+  <ul class="dropdown-menu" role="menu">
+    <li><a tabindex="-1" href="#">关联设置</a></li>
+    <li><a tabindex="-1" href="#">删除</a></li>
+  </ul>
 </div>
 <div id="dlgAddFolder" class="easyui-dialog" title="" style="width:400px;height:200px;padding:10px"
 data-options="
@@ -296,7 +301,7 @@ function changecolor(obj) {
 	}catch(e){hasUpdated = 'false';}
 	
 	if (''!=iframeId && undefined!=iframeId && iframeId == selectedLogId && Boolean(hasUpdated)) {
-		console.log('save');
+		//console.log('save');
 		// 1.自动保存记录内容
 		$.ajax({
 			type: 'POST',
@@ -315,7 +320,7 @@ function changecolor(obj) {
 			}
 		});
 	} else {
-		console.log('not save');
+		//console.log('not save');
 		// 2.打开新选中的记录
 		$('#selectedLogTitleId').textbox('setValue', $(obj).children('.list-group-item-heading')[0].innerHTML );
 		$('#selectedLogId').val($(obj).attr('id'));
@@ -407,6 +412,48 @@ function updateFolder() {
 	$('#folderName').next('span').find('input').focus();
 }
 
+function addlog() {
+	var selectedFolder = $('#tfolder').tree('getSelected');
+	var selectedFolderId = selectedFolder.id;
+
+	$.ajax({
+		type: 'POST',
+		url: '/addNewLog',
+		dataType: 'json',
+		data: {'parentFolderId': selectedFolderId},
+		success: function(data, textStatus){
+			if ("add_succeed" == data.state) {
+				getLogsOrderbyCreateDtDesc(selectedFolderId);
+			} else if ("add_failed" == data.state) {
+				$.messager.show({
+    				title:'系统信息',
+    				msg:''+data.errorContent,
+    				showSpeed:100,
+    				showType:'fade',
+    				timeout:4000,
+    				style:{
+    					right:'',
+    					bottom:''
+    				}
+    			});
+			}
+		},
+		error: function(data) {
+			$.messager.show({
+				title:'系统信息',
+				msg:'服务发生错误！',
+				showSpeed:100,
+				showType:'fade',
+				timeout:4000,
+				style:{
+					right:'',
+					bottom:''
+				}
+			});
+		}
+	});
+}
+
 function getLogsOrderbyCreateDtDesc(folderId) {
 	if(!folderId){
 		folderId = 0;
@@ -431,9 +478,30 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 					}
 					$('#titleListId').html(listStr);
 					listStr = null;
+					
 					$('#titleListId').children()[0].click();
+					
+					for (var i=0; i<$('#titleListId').children().length; i++){
+						$($('#titleListId').children()[i]).bind("contextmenu", function(e){
+							e.preventDefault();
+							return false;
+						});
+					}
+					for (var i=0; i<$('#titleListId').children().length; i++){
+						$($('#titleListId').children()[i]).bind("mousedown", function(e){
+							if (e.which == 3){
+								$(this).contextmenu({
+							    	target: '#logMenuId',
+							    	onItem: function (context, e) {
+										alert($(e.target).text());
+									}
+								});
+								//console.log(e.which);
+							}
+						});
+					}
 				} else if (data.counts == 0) {
-					console.log("data.counts == 0, do nothing");// do nothing
+					//console.log("data.counts == 0, do nothing");// do nothing
 					$.messager.show({
 	    				title:'系统信息',
 	    				msg: "此文件夹下无数据!",
@@ -572,7 +640,7 @@ function updateOrSaveMd(obj) {
 }
 
 $(document).ready(function(){
-	
+
 	$.extend($.fn.validatebox.defaults.rules, {
 	    unnull: {
 	        validator: function(value, param){
@@ -624,7 +692,7 @@ $(document).ready(function(){
 			return node.text;
 		},
 		onClick: function(node) {
-			alert(node.text);
+			getLogsOrderbyCreateDtDesc(node.id);
 		},
 		onContextMenu: function(e, node){
 			e.preventDefault();
@@ -692,6 +760,9 @@ $(document).ready(function(){
 		//$('#selectedLogTitleId').textbox('resize', (window.document.body.offsetWidth*0.3)+'px' );
 	});
 	
+	/**
+	新增log日志记录
+	*/
 	$("#searchText").textbox({
 		onClickButton:function(){
 			$.ajax({
@@ -699,7 +770,21 @@ $(document).ready(function(){
 				url: '/addNewLog',
 				dataType: 'json',
 				success: function(data, textStatus){
-					getLogsOrderbyCreateDtDesc();
+					if ("add_succeed" == data.state) {
+						getLogsOrderbyCreateDtDesc();
+					} else if ("add_failed" == data.state) {
+						$.messager.show({
+		    				title:'系统信息',
+		    				msg:''+data.errorContent,
+		    				showSpeed:100,
+		    				showType:'fade',
+		    				timeout:4000,
+		    				style:{
+		    					right:'',
+		    					bottom:''
+		    				}
+		    			});
+					}
 				},
 				error: function(data) {
 					$.messager.show({
@@ -727,7 +812,56 @@ $(document).ready(function(){
 
 	
 	$('#newestFile').click();
-
+	
+	$('#selectedLogTitleId').textbox('textbox').bind('blur', function(e){
+		var selectedLogId = $('#selectedLogId').val();
+		var selectedLogItem = $('#'+selectedLogId);
+		
+		var oldTitle = selectedLogItem.children(".list-group-item-heading").html();
+		var newTitle = $('#selectedLogTitleId').textbox('getValue');
+		
+		selectedLogItem.attr('title', newTitle.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+		selectedLogItem.children(".list-group-item-heading").html( newTitle.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') );
+		
+		if (oldTitle != newTitle) {
+			$.ajax({
+				type: 'POST',
+				url: '/changeTitle',
+				data: { 'logId':selectedLogId, "logTitle":newTitle },
+				dataType: 'json',
+				success: function(data, textStatus){
+					if ("update_succeed" == data.state) {
+						//getLogsOrderbyCreateDtDesc();
+					} else if ("update_db_failed" == data.state || "update_logid_failed" == data.state) {
+						$.messager.show({
+		    				title:'系统信息',
+		    				msg:''+data.errorContent,
+		    				showSpeed:100,
+		    				showType:'fade',
+		    				timeout:4000,
+		    				style:{
+		    					right:'',
+		    					bottom:''
+		    				}
+		    			});
+					}
+				},
+				error: function(data) {
+					$.messager.show({
+	    				title:'系统信息',
+	    				msg:'服务发生错误！',
+	    				showSpeed:100,
+	    				showType:'fade',
+	    				timeout:4000,
+	    				style:{
+	    					right:'',
+	    					bottom:''
+	    				}
+	    			});
+				}
+			});
+		}
+	});
 });
 
 

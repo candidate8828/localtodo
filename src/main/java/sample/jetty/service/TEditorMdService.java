@@ -76,6 +76,12 @@ public class TEditorMdService {
 		return ((null==resultList)?(new ArrayList<LogBean>()):resultList);
 	}
 	
+	/**
+	 * 保存
+	 * @param logBean
+	 * @return
+	 * @throws Exception
+	 */
 	@Transactional
 	public boolean saveUpdateLogContent(LogBean logBean) throws Exception {
 		boolean result = false;
@@ -205,6 +211,12 @@ public class TEditorMdService {
 		return result;
 	}
 	
+	/**
+	 * 添加新的日志记录
+	 * @param parentFolderId
+	 * @return
+	 * @throws Exception
+	 */
 	@Transactional
 	@SuppressWarnings("unused")
 	public boolean addNewLog(long parentFolderId) throws Exception {
