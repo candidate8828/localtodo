@@ -39,7 +39,8 @@
             if (editor.find("." + dialogName).length < 1)
             {
                 var guid   = (new Date).getTime();
-                var action = settings.imageUploadURL + (settings.imageUploadURL.indexOf("?") >= 0 ? "&" : "?") + "guid=" + guid;
+                var logId  = $('#markdownId').val();// added by ys
+                var action = settings.imageUploadURL + (settings.imageUploadURL.indexOf("?") >= 0 ? "&" : "?") + "guid=" + guid+"&logId="+logId;
 
                 if (settings.crossDomainUpload)
                 {
@@ -51,7 +52,7 @@
                                         "<label>" + imageLang.url + "</label>" +
                                         "<input type=\"text\" data-url />" + (function(){
                                             return (settings.imageUpload) ? "<div class=\"" + classPrefix + "file-input\">" +
-                                                                                "<input type=\"file\" name=\"" + classPrefix + "image-file\"  />" +
+                                                                                "<input type=\"file\" name=\"" + classPrefix.replace('-','_') + "image_file\"  />" +
                                                                                 "<input type=\"submit\" value=\"" + imageLang.uploadButton + "\" />" +
                                                                             "</div>" : "";
                                         })() +
@@ -125,7 +126,7 @@
                     return ;
                 }
 
-				var fileInput  = dialog.find("[name=\"" + classPrefix + "image-file\"]");
+				var fileInput  = dialog.find("[name=\"" + classPrefix.replace('-','_') + "image_file\"]");
 
 				fileInput.bind("change", function() {
 					var fileName  = fileInput.val();
