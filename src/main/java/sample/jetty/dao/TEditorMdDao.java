@@ -88,4 +88,8 @@ public class TEditorMdDao {
 		return result;
 	}
 	
+	public boolean deleteLogById(long logId) throws Exception {
+		return this.sqlSessionTemplate.insert("SAMPLE_EDITORMD_MAPPER.deleteLogById", logId) > 0;
+	}
+	
 }

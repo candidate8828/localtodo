@@ -235,4 +235,10 @@ public class TEditorMdService {
 		long newId = tFolderDao.addFolderAndLogRelation(parentFolderId, logBean.getId());
 		return true;
 	}
+	
+	
+	@Transactional
+	public boolean deleteLogById(long logId) throws Exception {
+		return tEditorMdDao.deleteLogById(logId);
+	}
 }

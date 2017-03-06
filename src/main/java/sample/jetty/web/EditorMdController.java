@@ -328,4 +328,25 @@ public class EditorMdController {
 		return resultMap;
 	}
 	
+	@RequestMapping("/deleteLogById")
+	@ResponseBody
+	public Map<String, Object> deleteLogById(@RequestParam(value="logId", required=false, defaultValue="0") long logId,
+			HttpServletRequest request, Model model) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		if (0L != logId) {
+			try {
+				tEditorMdService.deleteLogById(logId);
+				resultMap.put("state", "update_succeed");
+				resultMap.put("errorContent", "");
+			} catch(Exception e) {
+				logger.error("EditorMdController.deleteLogById", e);
+				resultMap.put("state", "update_failed");
+				resultMap.put("errorContent", e.getMessage());
+			}
+		} else {
+			resultMap.put("state", "update_failed");
+			resultMap.put("errorContent", "logId is null");
+		}
+		return resultMap;
+	}
 }

@@ -97,5 +97,7 @@
 	values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy}, #{startDt}, #{endDt}, #{deadline}, #{logType}, #{logStat}, #{isDelete}, #{logTitle}, #{logDesc})
 	</insert>
 	
-	
+	<delete id="deleteLogById" parameterType="long">
+	update test.TB_WORK_LOG set LAST_UPD_DT = now(),IS_DELETE = '1' where ID = #{logId}
+	</delete>
 </mapper>
