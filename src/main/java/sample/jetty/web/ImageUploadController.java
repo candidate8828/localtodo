@@ -4,7 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,11 +23,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import sample.jetty.SampleJettyApplication;
+import sample.jetty.domain.FileBean;
 import sample.jetty.embedmysql.EmbedMySqlServer;
+import sample.jetty.service.TFileService;
 
 @Controller
 public class ImageUploadController {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
+	@Autowired
+	private TFileService tFileService;
 	
 	@RequestMapping(value="/uploadImage",method = RequestMethod.POST)
 	@ResponseBody
@@ -47,25 +53,28 @@ public class ImageUploadController {
 		//String filesDirStr = logFileDir.getAbsolutePath() + File.separator + "files" + File.separator + logId;
 		
 		
-		String path=null;// 文件路径
+		String targetpath=null;// 文件路径
 		String fileName=editormd_image_file.getOriginalFilename();// 文件原名称
+		Date now = new Date();
 		if (0L != logId) {
 			InputStream inputStream = null;
 			BufferedInputStream bufInputStream = null;
 			FileOutputStream os = null;
 			try {
-				// TODO 路径相关信息存入表中
+				
 				// 项目在容器中实际发布运行的根路径
-				String filesDirStr = logFileDir.getAbsolutePath() + File.separator + "files" + File.separator + logId;//String realPath=request.getSession().getServletContext().getRealPath("/");
+				String rootPath = logFileDir.getAbsolutePath() + File.separator + "files" + File.separator;
+				String filesDirStr = rootPath + logId;//String realPath=request.getSession().getServletContext().getRealPath("/");
+				long createTime = now.getTime(); //  System.currentTimeMillis();
 				// 自定义的文件名称
-				String trueFileName=String.valueOf(System.currentTimeMillis())+fileName;
+				String trueFileName=String.valueOf(createTime)+fileName;
 				// 设置存放图片文件的路径
-				path = filesDirStr + File.separator + trueFileName;
-				System.out.println("存放图片文件的路径:"+path);
+				targetpath = filesDirStr + File.separator + trueFileName;
+				logger.debug("存放图片文件的路径:"+targetpath);
 				// 转存文件到指定的路径
 				
 				//editormd_image_file.transferTo(new File(path));
-				File targetFile = new File(path);
+				File targetFile = new File(targetpath);
 				os = new FileOutputStream(targetFile);
 				inputStream = editormd_image_file.getInputStream();
 				bufInputStream = new BufferedInputStream(inputStream);
@@ -79,8 +88,22 @@ public class ImageUploadController {
 				if (os != null) {
 					os.close();
 				}
-				System.out.println("文件成功上传到指定目录下");
+				logger.debug("文件成功上传到指定目录下");
 				
+				FileBean fileBean = new FileBean();
+				fileBean.setCreateTime(createTime);
+				if (fileName.lastIndexOf(".") < fileName.length()) {
+					fileBean.setFileType(fileName.substring(fileName.lastIndexOf(".")+1));
+				}
+				String relatePath = File.separator + "files" + File.separator + logId + File.separator + trueFileName;
+				fileBean.setRelatePath(relatePath);
+				fileBean.setCreatedBy(1L);
+				fileBean.setLastUpdedBy(1L);
+				fileBean.setCreateDt(now);
+				fileBean.setLastUpdDt(now);
+				
+				// 路径相关信息存入表中
+				tFileService.addNewFile(fileBean);
 				
 				resultMap.put("success", "1");
 				resultMap.put("message", "");

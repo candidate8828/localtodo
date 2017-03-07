@@ -6,6 +6,7 @@ drop table if exists TB_LABEL;
 drop table if exists TB_LOG_LABEL;
 drop table if exists TB_FOLDER;
 drop table if exists TB_LOG_FOLDER;
+drop table if exists TB_FILE;
 
 
 -- 字典表
@@ -132,3 +133,15 @@ log_id int, -- 对应 TB_WORK_LOG.id
 folder_id int -- 对应 TB_FOLDER.id
 );
 -- 按照folder分类   end --
+
+create table TB_FILE
+(
+id int primary key auto_increment,
+create_dt timestamp,
+created_by int,
+last_upd_dt timestamp,
+last_upded_by int,
+create_time bigint,
+relate_path varchar(1000),
+file_type varchar(100)
+);
