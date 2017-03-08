@@ -12,7 +12,7 @@ drop table if exists TB_FILE;
 -- 字典表
 create table TB_DICTIONARY
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 dic_type varchar(50), -- 标明是用于什么内容的
 dic_code varchar(200), -- 数据库中记录的值
 dic_content varchar(300), -- 页面需要显示的值
@@ -20,18 +20,18 @@ dic_order_by int default '-1', -- 排序
 active_flag char(1) default 'Y', -- 是否启用
 is_delete int default '0', -- 0:未删除,1:已经删除，已经启用的记录不能删，要先失效才能删除
 dic_comments varchar(300), -- 对此记录的注释
-root_id int default '-1', -- 根记录此值等于id
-parent_id int default '-1' -- 根记录此值等于 -1
+root_id bigint default '-1', -- 根记录此值等于id
+parent_id bigint default '-1' -- 根记录此值等于 -1
 );
 
 -- 人员表
 create table TB_USER
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
+last_upded_by bigint,
 username varchar(20), -- 登录名
 password varchar(20), -- 密码
 dispname varchar(50), -- 页面显示名
@@ -45,11 +45,11 @@ values (now(),1,now(),1,'gfyangsong','a123456','杨松','0','主要使用人员'
 -- 工作记录表
 create table TB_WORK_LOG
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
+last_upded_by bigint,
 start_dt timestamp, -- 开始时间,每个记录都有
 end_dt timestamp, -- 结束时间,需要跟进的记录才有
 deadline timestamp, -- 最后截止时间,可有可无,一般是IT需求才有
@@ -64,12 +64,12 @@ values (now(),'1',now(),'1',now(),null,null,'0','0','0','一个测试用的title
 
 create table TB_WORK_CONTENT  -- 类似贴吧
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
-log_id int, -- 对应 TB_WORK_LOG.id
+last_upded_by bigint,
+log_id bigint, -- 对应 TB_WORK_LOG.id
 order_by int, -- 顺序
 is_delete int default '0', -- 0:未删除,1:已经删除
 log_content varchar(2000) -- 记录内容
@@ -79,39 +79,39 @@ log_content varchar(2000) -- 记录内容
 -- 按照label分类  start --
 create table TB_LABEL
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 label_name  varchar(500), -- 标签名
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
+last_upded_by bigint,
 is_delete int default '0', -- 0:未删除,1:已经删除,在 TB_LOG_LABEL中有对应记录的不能删
 order_by int -- 顺序
 );
 
 create table TB_LOG_LABEL
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
-log_id int, -- 对应 TB_WORK_LOG.id
-label_id int -- 对应 TB_LABEL.id
+last_upded_by bigint,
+log_id bigint, -- 对应 TB_WORK_LOG.id
+label_id bigint -- 对应 TB_LABEL.id
 );
 -- 按照label分类   end --
 
 -- 按照folder分类  start --
 create table TB_FOLDER
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 folder_name  varchar(500), -- 标签名
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
+last_upded_by bigint,
 is_delete int default '0', -- 0:未删除,1:已经删除,在 TB_LOG_FOLDER 中有对应记录的不能删
-parent_id int default '0', -- 默认为顶级目录
+parent_id bigint default '0', -- 默认为顶级目录
 order_by int -- 顺序
 );
 
@@ -124,23 +124,25 @@ values ('未分类', now(), '1', now(), '1', '0', '0', '3');
 
 create table TB_LOG_FOLDER
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
-log_id int, -- 对应 TB_WORK_LOG.id
-folder_id int -- 对应 TB_FOLDER.id
+last_upded_by bigint,
+log_id bigint, -- 对应 TB_WORK_LOG.id
+folder_id bigint -- 对应 TB_FOLDER.id
 );
 -- 按照folder分类   end --
 
 create table TB_FILE
 (
-id int primary key auto_increment,
+id bigint primary key auto_increment,
 create_dt timestamp,
-created_by int,
+created_by bigint,
 last_upd_dt timestamp,
-last_upded_by int,
+last_upded_by bigint,
+log_id bigint,
+file_name varchar(1000),
 create_time bigint,
 relate_path varchar(1000),
 file_type varchar(100)

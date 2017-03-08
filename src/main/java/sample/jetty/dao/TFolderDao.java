@@ -35,12 +35,12 @@ public class TFolderDao {
 		}
 	}
 
-	public boolean addNewFolder(String folderName, long id, int maxOrderNum) throws Exception {
+	public long addNewFolder(String folderName, long id, int maxOrderNum) throws Exception {
 		HashMap<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("folderName", folderName);
 		paramMap.put("id", id);
 		paramMap.put("maxOrderNum", maxOrderNum);
-		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addNewFolder", paramMap) > 0;
+		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addNewFolder", paramMap);
 	}
 	
 	public FolderBean selectFolderById(long id) throws Exception {
@@ -105,6 +105,6 @@ public class TFolderDao {
 		HashMap<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("parentFolderId", parentFolderId);
 		paramMap.put("logId", logId);
-		return this.sqlSessionTemplate.update("SAMPLE_FOLDER_MAPPER.addFolderAndLogRelation", paramMap);
+		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addFolderAndLogRelation", paramMap);
 	}
 }

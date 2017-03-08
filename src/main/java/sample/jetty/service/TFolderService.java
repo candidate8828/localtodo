@@ -65,7 +65,7 @@ public class TFolderService {
 	@Transactional
 	public boolean addNewFolder(String folderName, long id) throws Exception {
 		int maxOrderNum = tFolderDao.selectMaxOrderNumByParentId(id);
-		return tFolderDao.addNewFolder(folderName, id, maxOrderNum+1);
+		return tFolderDao.addNewFolder(folderName, id, maxOrderNum+1) > 0L;
 	}
 	
 	@Transactional

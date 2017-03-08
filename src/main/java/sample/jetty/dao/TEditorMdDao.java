@@ -65,7 +65,7 @@ public class TEditorMdDao {
 		return result;
 	}
 	
-	public int addNewLogContentRecord(LogContentBean logContentBean) throws Exception {
+	public long addNewLogContentRecord(LogContentBean logContentBean) throws Exception {
 		return this.sqlSessionTemplate.insert("SAMPLE_EDITORMD_MAPPER.addNewLogContentRecord", logContentBean);
 	}
 	

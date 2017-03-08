@@ -4,11 +4,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="SAMPLE_EDITORMD_MAPPER">
 	<resultMap type="sample.jetty.domain.LogBean" id="LOG_BEAN_MAP">
-		<result column="ID"              jdbcType="INTEGER"   property="id"          javaType="long"/>
+		<result column="ID"              jdbcType="BIGINT"   property="id"          javaType="long"/>
 		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
-		<result column="CREATED_BY"      jdbcType="INTEGER"   property="createdBy"   javaType="long"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"   property="createdBy"   javaType="long"/>
 		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
-		<result column="LAST_UPDED_BY"   jdbcType="INTEGER"   property="lastUpdedBy" javaType="long"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"   property="lastUpdedBy" javaType="long"/>
 		<result column="START_DT"        jdbcType="TIMESTAMP" property="startDt"     javaType="java.util.Date"/>
 		<result column="END_DT"          jdbcType="TIMESTAMP" property="endDt"       javaType="java.util.Date"/>
 		<result column="DEADLINE"        jdbcType="TIMESTAMP" property="deadline"    javaType="java.util.Date"/>
@@ -19,12 +19,12 @@
 		<result column="LOG_DESC"        jdbcType="VARCHAR"   property="logDesc"     javaType="String"/>
 	</resultMap>
 	<resultMap type="sample.jetty.domain.LogContentBean" id="LOG_CONTENT_BEAN_MAP">
-		<result column="ID"              jdbcType="INTEGER"   property="id"          javaType="long"/>
+		<result column="ID"              jdbcType="BIGINT"   property="id"          javaType="long"/>
 		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
-		<result column="CREATED_BY"      jdbcType="INTEGER"   property="createdBy"   javaType="long"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"   property="createdBy"   javaType="long"/>
 		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
-		<result column="LAST_UPDED_BY"   jdbcType="INTEGER"   property="lastUpdedBy" javaType="long"/>
-		<result column="LOG_ID"          jdbcType="INTEGER"   property="logId"       javaType="long"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"   property="lastUpdedBy" javaType="long"/>
+		<result column="LOG_ID"          jdbcType="BIGINT"   property="logId"       javaType="long"/>
 		<result column="ORDER_BY"        jdbcType="INTEGER"   property="orderBy"     javaType="int"/>
 		<result column="IS_DELETE"       jdbcType="INTEGER"   property="isDelete"    javaType="int"/>
 		<result column="LOG_CONTENT"     jdbcType="VARCHAR"   property="logContent"  javaType="String"/>
@@ -72,7 +72,7 @@
 	 where t.ID = #{id} 
 	</update>
 	
-	<insert id="addNewLogContentRecord" parameterType="sample.jetty.domain.LogContentBean">
+	<insert id="addNewLogContentRecord" useGeneratedKeys="true" keyProperty="id" parameterType="sample.jetty.domain.LogContentBean">
 	insert into test.TB_WORK_CONTENT (CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,LOG_ID,ORDER_BY,IS_DELETE,LOG_CONTENT)
 	values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy}, #{logId}, #{orderBy}, #{isDelete}, #{logContent})
 	</insert>
