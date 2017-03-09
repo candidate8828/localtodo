@@ -31,8 +31,9 @@
 <div class="easyui-layout" data-options="fit:true">
 	<div data-options="region:'north',split:false" style="height:77px;overflow:hidden">
 	<div class="easyui-panel" title=" " style="width:100%;padding:0px;" data-options="closable:false,tools:'#tt'">
-	<a href="javascript:void(0)" id="newestFile" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%" onclick="getLogsOrderbyCreateDtDesc(0);">最新的文档</a>
-	<a href="javascript:void(0)" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" onclick="getLogsOrderbyCreateDtDesc(-1);" >我的文件夹</a><!-- showFolderTree(); -->
+	<input type="hidden" id="selectedFolderId" value="" />
+	<a href="javascript:void(0)" id="newestFile" class="btn btn-default btn-lg btn-xs" style="border:0px;border-radius:0px;width:100%;padding:2px 12px;" onclick="getLogsOrderbyCreateDtDesc(0);">最新的文档</a>
+	<a href="javascript:void(0)" id="myfolder" class="btn btn-default btn-lg btn-xs" style="border:0px;border-radius:0px;width:100%;padding:2px 12px;" onclick="getLogsOrderbyCreateDtDesc(-1);" >我的文件夹</a><!-- showFolderTree(); -->
 	</div>
 	</div>
 	<div id="folderdivId" data-options="region:'center'" style="background-color:#CEE9FF">
@@ -41,7 +42,7 @@
 		</div>
 	</div>
 	<div data-options="region:'south',border:false" style="height:25px;overflow:hidden">
-	<a href="javascript:void(0)" class="easyui-linkbutton" style="border:0px;border-radius:0px;width:100%;" onclick="getLogsOrderbyCreateDtDesc(-2);">垃圾箱</a>
+	<a href="javascript:void(0)" id="crashFolder" class="btn btn-default btn-lg btn-xs" style="border:0px;border-radius:0px;width:100%;padding:2px 12px;" onclick="getLogsOrderbyCreateDtDesc(-2);">垃圾箱</a>
 	</div>
 </div>
 <div id="tt">
@@ -91,7 +92,7 @@
 	<input id="searchText" type="text" class="easyui-textbox" data-options="buttonText:'新建',prompt:'Search...'" style="border-radius:0px;width:100%;height:32px;" />
 	</div>
 	<div id="centerId" data-options="region:'center'" style="overflow:hidden;background-color:#CEE9FF">
-	<input type="hidden" name="rownum" id="loglistRownumId" value=""/>
+	<input type="hidden" name="rownum" id="loglistRownumId" value="20"/>
 	<div id="titleListId" class="list-group" style="margin-bottom:0px;fit:true;border:false;plain:true">
 		<!-- 
 		<a href="javascript:void(0);" class="list-group-item" title="一个非常长并且不知道该怎么写的测试用的长长的标题"  onclick="javascript:changecolor(this);">
@@ -269,7 +270,7 @@ function changecolor(obj) {
 	if(selectedLogId == obj.id){
 		return false;
 	}
-	$('.list-group-item').attr('style','background-color:#FFEFFF');
+	$('.list-group-item').attr('style','background-color:#CEE9FF;border:1px solid #CCC;');
 	$(obj).attr('style','background-color:#2EE9FF');
 	$('#markdown-content-click-id').linkbutton({text:"编辑"});
 	/*
@@ -453,6 +454,20 @@ function addlog() {
 }
 
 function getLogsOrderbyCreateDtDesc(folderId) {
+	$("#loglistRownumId").val(20);
+	if(0 == folderId) {
+		$('#newestFile').removeClass("btn btn-default btn-lg btn-xs").addClass("btn btn-primary btn-lg btn-xs");
+		$('#myfolder').removeClass("btn btn-primary btn-lg btn-xs").addClass("btn btn-default btn-lg btn-xs");
+		$('#crashFolder').removeClass("btn btn-primary btn-lg btn-xs").addClass("btn btn-default btn-lg btn-xs");
+	} else if(-1 == folderId) {
+		$('#newestFile').removeClass("btn btn-primary btn-lg btn-xs").addClass("btn btn-default btn-lg btn-xs");
+		$('#myfolder').removeClass("btn btn-default btn-lg btn-xs").addClass("btn btn-primary btn-lg btn-xs");
+		$('#crashFolder').removeClass("btn btn-primary btn-lg btn-xs").addClass("btn btn-default btn-lg btn-xs");
+	} else if(-2 == folderId) {
+		$('#newestFile').removeClass("btn btn-primary btn-lg btn-xs").addClass("btn btn-default btn-lg btn-xs");
+		$('#myfolder').removeClass("btn btn-primary btn-lg btn-xs").addClass("btn btn-default btn-lg btn-xs");
+		$('#crashFolder').removeClass("btn btn-default btn-lg btn-xs").addClass("btn btn-primary btn-lg btn-xs");
+	}
 	// 1.先保存原来已经打开的记录
 	var markdownContent = '';
 	var iframeId = '';
@@ -492,6 +507,7 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 	if(!folderId){
 		folderId = 0;
 	}
+	$('#selectedFolderId').val(folderId);
 	$('#selectedLogId').val('');
 	var rownumValue = $('#loglistRownumId').val();
 	$.ajax({
@@ -503,15 +519,17 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 			//console.log(data);
 			if ("get_succeed" == data.state) {
 				if (data.counts > 0) {
+					$("#loglistRownumId").val(data.counts);
 					var listStr = "";
 					for (var i=0;i<data.rows.length;i++) {
 						//console.log(data.rows[i]);
-						listStr += '<a href="javascript:void(0)" id="'+data.rows[i].id+'" class="list-group-item" title="'+ data.rows[i].logTitle +'"  onclick="javascript:changecolor(this);">'
+						listStr += '<a href="javascript:void(0)" id="'+data.rows[i].id+'" class="list-group-item" title="'+ data.rows[i].logTitle +'"  onclick="javascript:changecolor(this);" style="background-color:#CEE9FF;border:1px solid #CCC;">'
 								+ '<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">'+ data.rows[i].logTitle +'</h4>'
 								+ '<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">'+ data.rows[i].logDesc +'</p>'
 								+ '</a>';
 					}
 					$('#titleListId').html(listStr);
+					$("#folderdivId").mCustomScrollbar("update");
 					listStr = null;
 					
 					$('#titleListId').children()[0].click();
@@ -587,7 +605,12 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 						});
 					}
 				} else if (data.counts == 0) {
-					//console.log("data.counts == 0, do nothing");// do nothing
+					$('#titleListId').html("");
+					$("#folderdivId").mCustomScrollbar("update");
+					$('#selectedLogTitleId').textbox('setValue','');
+					var iframeSrc = "/showIframeMarkdownHTMLByLogId?logId=0&timestamp="+ ((new Date()).getTime()) ;
+					$('#editorMdContentId').attr('src', iframeSrc);
+					/*
 					$.messager.show({
 	    				title:'系统信息',
 	    				msg: "此文件夹下无数据!",
@@ -599,6 +622,7 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 	    					bottom:''
 	    				}
 	    			});
+					*/
 				}
 			} else if ("get_failed" == data.state) {
 				$.messager.show({
@@ -779,6 +803,7 @@ $(document).ready(function(){
 			return node.text;
 		},
 		onClick: function(node) {
+			$('#selectedFolderId').val(node.id);
 			getLogsOrderbyCreateDtDesc(node.id);
 		},
 		onContextMenu: function(e, node){
@@ -807,15 +832,15 @@ $(document).ready(function(){
 	            scrollType:"continuous",  
 	            scrollSpeed:"auto",
 	            scrollAmount:40  
-	        },
-	        advanced:{
+			},
+			advanced:{
 	            updateOnBrowserResize:true,  
 	            updateOnContentResize:true,
 	            autoExpandHorizontalScroll:false,
 	            autoScrollOnFocus:true,
 	            normalizeMouseWheelDelta:false
-	         },
-	         theme:"minimal-dark"
+			},
+			theme:"minimal-dark"
 	    });
 		$("#centerId").mCustomScrollbar({
 			autoDraggerLength:false,
@@ -831,14 +856,172 @@ $(document).ready(function(){
                 scrollSpeed:"auto",
                 scrollAmount:40  
             },
-            advanced:{
+			advanced:{
                 updateOnBrowserResize:true,  
                 updateOnContentResize:true,
                 autoExpandHorizontalScroll:false,
                 autoScrollOnFocus:true,
                 normalizeMouseWheelDelta:false
-             },
-             theme:"minimal-dark"
+			},
+			callbacks:{
+				//onTotalScrollOffset: 10,
+				onTotalScroll:function(){
+					//console.log("Scrolled to end of content.");
+					var folderId = $('#selectedFolderId').val();
+					var rownumValue = new Number($('#loglistRownumId').val())+20;
+					$.ajax({
+						type: 'POST',
+						url: '/getLogListByFolderId',
+						data: { 'folderId':folderId,"rownum":rownumValue },
+						dataType: 'json',
+						success: function(data, textStatus){
+							//console.log(data);
+							if ("get_succeed" == data.state) {
+								if (data.counts > 0) {
+									$("#loglistRownumId").val(new Number($('#loglistRownumId').val()) + new Number(data.counts));
+									var listStr = "";
+									for (var i=0;i<data.rows.length;i++) {
+										//console.log(data.rows[i]);
+										listStr += '<a href="javascript:void(0)" id="'+data.rows[i].id+'" class="list-group-item" title="'+ data.rows[i].logTitle +'"  onclick="javascript:changecolor(this);" style="background-color:#CEE9FF;border:1px solid #CCC;">'
+												+ '<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;">'+ data.rows[i].logTitle +'</h4>'
+												+ '<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">'+ data.rows[i].logDesc +'</p>'
+												+ '</a>';
+									}
+									$('#titleListId').html($('#titleListId').html()+listStr);
+									$("#folderdivId").mCustomScrollbar("update");
+									listStr = null;
+									
+									//$('#titleListId').children()[0].click();
+									
+									for (var i=0; i<$('#titleListId').children().length; i++){
+										$($('#titleListId').children()[i]).bind("contextmenu", function(e){
+											e.preventDefault();
+											return false;
+										});
+									}
+									for (var i=0; i<$('#titleListId').children().length; i++){
+										$($('#titleListId').children()[i]).bind("mousedown", function(e){
+											if (e.which == 3){
+												var tempAtem = this;
+												if (folderId == -2) {
+													$($('#logMenuId').children()[0]).children()[1].style="display:none";
+												} else {
+													$($('#logMenuId').children()[0]).children()[1].style="display:block";
+												}
+												$(this).contextmenu({
+											    	target: '#logMenuId',
+											    	onItem: function (context, e) {
+											    		//console.log(e.target.id);
+											    		//console.log(tempAtem);
+											    		if ('relationSet' == e.target.id) {
+											    			
+											    		} else if ('deleteLog' == e.target.id) {
+											    			var selectedItemLogId = tempAtem.id;
+											    			var selectedItemLogTitle = $($(tempAtem).children()[0]).text();
+											    			$.messager.confirm('删除日志', '确定要删除日志【'+selectedItemLogTitle+'】吗？', function(r){
+											    		        if (r){
+											    		        	$.ajax({
+											    		        		type: 'POST',
+											    		        		url: '/deleteLogById',
+											    		        		data: {'logId': selectedItemLogId },
+											    		        		dataType: 'json',
+											    		        		success: function(data, textStatus){
+											    		        			if ('update_succeed' == data.state) {
+											    			        			$(tempAtem).remove();
+											    			        			$.messager.show({
+											    			        				title:'系统信息',
+											    			        				msg:'删除日志成功！',
+											    			        				showSpeed:100,
+											    			        				showType:'fade',
+											    			        				timeout:400,
+											    			        				style:{
+											    			        					right:'',
+											    			        					bottom:''
+											    			        				}
+											    			        			});
+											    		        			} else {
+											    		        				$.messager.show({
+											    			        				title:'系统信息',
+											    			        				msg:'删除日志失败！'+data.errorContent,
+											    			        				showSpeed:100,
+											    			        				showType:'fade',
+											    			        				timeout:400,
+											    			        				style:{
+											    			        					right:'',
+											    			        					bottom:''
+											    			        				}
+											    			        			});
+											    		        			}
+											    		        		}
+											    		        	});
+											    		        }
+											    		    });
+											    		}
+													}
+												});
+												//console.log(e.which);
+											}
+										});
+									}
+								} else if (data.counts == 0) {
+									/*
+									$('#titleListId').html("");
+									$("#folderdivId").mCustomScrollbar("update");
+									$('#selectedLogTitleId').textbox('setValue','');
+									var iframeSrc = "/showIframeMarkdownHTMLByLogId?logId=0&timestamp="+ ((new Date()).getTime()) ;
+									$('#editorMdContentId').attr('src', iframeSrc);
+									*/
+									/*
+									$.messager.show({
+					    				title:'系统信息',
+					    				msg: "此文件夹下无数据!",
+					    				showSpeed:100,
+					    				showType:'fade',
+					    				timeout:4000,
+					    				style:{
+					    					right:'',
+					    					bottom:''
+					    				}
+					    			});
+									*/
+								}
+							} else if ("get_failed" == data.state) {
+								$.messager.show({
+				    				title:'系统信息',
+				    				msg: data.errorContent+"!",
+				    				showSpeed:100,
+				    				showType:'fade',
+				    				timeout:400,
+				    				style:{
+				    					right:'',
+				    					bottom:''
+				    				}
+				    			});
+							} else {
+								$.messager.show({
+				    				title:'系统信息',
+				    				msg:'发生未知问题！',
+				    				showSpeed:100,
+				    				showType:'fade',
+				    				timeout:400,
+				    				style:{
+				    					right:'',
+				    					bottom:''
+				    				}
+				    			});
+							}
+						},
+						error: function(e) { 
+							alert(e); 
+						}
+					});
+				}/* ,
+				onScrollStart: function(){
+					console.log("Scrolling.");
+				},
+				alwaysTriggerOffsets: true */
+			},
+			theme:"minimal-dark"
         });
     });
 	
