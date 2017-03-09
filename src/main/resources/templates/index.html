@@ -315,7 +315,18 @@ function changecolor(obj) {
 				$('#editorMdContentId').attr('src', iframeSrc);
 			},
 			error: function(e) { 
-				alert(e); 
+				console.log(e);
+				$.messager.show({
+    				title:'系统信息',
+    				msg:'调用 /updateMarkdownEditByLogId 失败！',
+    				showSpeed:100,
+    				showType:'fade',
+    				timeout:400,
+    				style:{
+    					right:'',
+    					bottom:''
+    				}
+    			});
 			}
 		});
 	} else {
@@ -499,7 +510,18 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 				// do nothing
 			},
 			error: function(e) { 
-				alert(e); 
+				console.log(e);
+				$.messager.show({
+					title:'系统信息',
+					msg:'调用 /updateMarkdownEditByLogId 错误！',
+					showSpeed:100,
+					showType:'fade',
+					timeout:4000,
+					style:{
+						right:'',
+						bottom:''
+					}
+				});
 			}
 		});
 	}
@@ -651,7 +673,18 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 			}
 		},
 		error: function(e) { 
-			alert(e); 
+			console.log(e);
+			$.messager.show({
+				title:'系统信息',
+				msg:'调用 /getLogListByFolderId 错误！',
+				showSpeed:100,
+				showType:'fade',
+				timeout:4000,
+				style:{
+					right:'',
+					bottom:''
+				}
+			});
 		}
 	});
 }
@@ -730,7 +763,18 @@ function updateOrSaveMd(obj) {
 					}
 				},
 				error: function(e) { 
-					alert(e); 
+					console.log(e);
+					$.messager.show({
+						title:'系统信息',
+						msg:'调用 /updateMarkdownEditByLogId 错误！',
+						showSpeed:100,
+						showType:'fade',
+						timeout:4000,
+						style:{
+							right:'',
+							bottom:''
+						}
+					});
 				}
 			});
 		} else {
@@ -1012,7 +1056,18 @@ $(document).ready(function(){
 							}
 						},
 						error: function(e) { 
-							alert(e); 
+							console.log(e);
+							$.messager.show({
+			    				title:'系统信息',
+			    				msg:'调用 /getLogListByFolderId 错误！',
+			    				showSpeed:100,
+			    				showType:'fade',
+			    				timeout:400,
+			    				style:{
+			    					right:'',
+			    					bottom:''
+			    				}
+			    			});
 						}
 					});
 				}/* ,
