@@ -296,6 +296,7 @@ function changecolor(obj) {
 	}catch(e){hasUpdated = 'false';}
 	
 	if (''!=iframeId && undefined!=iframeId && iframeId == selectedLogId && Boolean(hasUpdated)) {
+		$($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#hasUpdatedId').val('false');
 		//console.log('save');
 		// 1.自动保存记录内容
 		$.ajax({
@@ -303,7 +304,9 @@ function changecolor(obj) {
 			url: '/updateMarkdownEditByLogId',
 			data: { 'logId':selectedLogId, "logContent":markdownContent, "logTitle":selectedLogTitle },
 			dataType: 'json',
+			async: true,
 			success: function(data, textStatus){
+				$('#'+iframeId).children('.list-group-item-text')[0].innerHTML = (""+markdownContent).replace("<","&lt;").replace("/>","&#47;&gt;");
 				// 2.打开新选中的记录
 				$('#selectedLogTitleId').textbox('setValue', $(obj).children('.list-group-item-heading')[0].innerHTML );
 				$('#selectedLogId').val($(obj).attr('id'));
@@ -450,6 +453,42 @@ function addlog() {
 }
 
 function getLogsOrderbyCreateDtDesc(folderId) {
+	// 1.先保存原来已经打开的记录
+	var markdownContent = '';
+	var iframeId = '';
+	var selectedLogId = $('#selectedLogId').val();
+	var hasUpdated = 'false';
+	var selectedLogTitle = $('#selectedLogTitleId').textbox('getValue');
+	try{
+		markdownContent = $(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.getMarkdown();
+	}catch(e){markdownContent='';}
+	try{
+		iframeId = $($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#markdownId').val();
+	}catch(e){iframeId='';}
+	try{
+		hasUpdated = $($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#hasUpdatedId').val();
+	}catch(e){hasUpdated = 'false';}
+	
+	if (''!=iframeId && undefined!=iframeId && iframeId == selectedLogId && Boolean(hasUpdated)) {
+		$('#'+iframeId).children('.list-group-item-text')[0].innerHTML = (""+markdownContent).replace("<","&lt;").replace("/>","&#47;&gt;");
+		$($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#hasUpdatedId').val('false');
+		//console.log('save');
+		// 1.自动保存记录内容
+		$.ajax({
+			type: 'POST',
+			url: '/updateMarkdownEditByLogId',
+			data: { 'logId':selectedLogId, "logContent":markdownContent, "logTitle":selectedLogTitle },
+			dataType: 'json',
+			async: true,
+			success: function(data, textStatus){
+				// do nothing
+			},
+			error: function(e) { 
+				alert(e); 
+			}
+		});
+	}
+	// =================================== 获取指定folder下的记录
 	if(!folderId){
 		folderId = 0;
 	}
@@ -604,7 +643,8 @@ function updateOrSaveMd(obj) {
 		var iframeId = $($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#markdownId').val();
 		var selectedLogId = $('#selectedLogId').val();
 		var selectedLogTitle = $('#selectedLogTitleId').textbox('getValue');
-		
+		$($(window.parent.document).contents().find("#editorMdContentId")[0].contentWindow.document).find('#hasUpdatedId').val('false');
+		$('#'+iframeId).children('.list-group-item-text')[0].innerHTML = (""+markdownContent).replace("<","&lt;").replace("/>","&#47;&gt;");
 		if (selectedLogId == iframeId) {
 			$.ajax({
 				type: 'POST',

@@ -94,7 +94,9 @@ public class EditorMdController {
 			
 			LogBean logBean = tEditorMdService.selectEditorMdById(logId);
 			logBean.setLastUpdDt(date);
-			logBean.setLogTitle(HtmlUtils.htmlEscape(logTitle));
+			if(!"-1".equalsIgnoreCase(logTitle)){
+				logBean.setLogTitle(HtmlUtils.htmlEscape(logTitle));
+			}
 			// 存放一个title命名的空txt文件,已有就不管
 			String chineseTxt = filesDirStr + File.separator + logId +"."+logBean.getLogTitle().replaceAll(" ", "")+".txt";
 			File chineseFile = new File(chineseTxt);
