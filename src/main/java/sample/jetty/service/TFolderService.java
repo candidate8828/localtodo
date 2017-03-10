@@ -63,6 +63,50 @@ public class TFolderService {
 	}
 	
 	@Transactional
+	public void moveUp(long folderId) throws Exception {
+		// 先查出有没有比当前同级folder的orderby还小的记录
+		List<FolderBean> searchedList = tFolderDao.selectExchangeFolderListByOrderBy4Up(folderId);
+		// 有则对调两个记录的orderby的值
+		if(null != searchedList && searchedList.size() == 2){
+			Date now = new Date();
+			int tempOrderBy = 0;
+			FolderBean folderOne = searchedList.get(0);
+			FolderBean folderTwo = searchedList.get(1);
+			tempOrderBy = folderOne.getOrderBy();
+			folderOne.setOrderBy(folderTwo.getOrderBy());
+			folderTwo.setOrderBy(tempOrderBy);
+			folderOne.setLastUpdDt(now);
+			folderTwo.setLastUpdDt(now);
+			tFolderDao.updateFolderById(folderOne);
+			tFolderDao.updateFolderById(folderTwo);
+		} else {// 没有则throw出exception("already moved to the top in this folder level")
+			throw new Exception("already moved to the top in this folder level");
+		}
+	}
+	
+	@Transactional
+	public void moveDown(long folderId) throws Exception {
+		// 先查出有没有比当前同级folder的orderby还大的记录
+		List<FolderBean> searchedList = tFolderDao.selectExchangeFolderListByOrderBy4Down(folderId);
+		// 有则对调两个记录的orderby的值
+		if(null != searchedList && searchedList.size() == 2){
+			Date now = new Date();
+			int tempOrderBy = 0;
+			FolderBean folderOne = searchedList.get(0);
+			FolderBean folderTwo = searchedList.get(1);
+			tempOrderBy = folderOne.getOrderBy();
+			folderOne.setOrderBy(folderTwo.getOrderBy());
+			folderTwo.setOrderBy(tempOrderBy);
+			folderOne.setLastUpdDt(now);
+			folderTwo.setLastUpdDt(now);
+			tFolderDao.updateFolderById(folderOne);
+			tFolderDao.updateFolderById(folderTwo);
+		} else {// 没有则throw出exception("already moved to the bottom in this folder level")
+			throw new Exception("already moved to the bottom in this folder level");
+		}
+	}
+	
+	@Transactional
 	public boolean addNewFolder(String folderName, long id) throws Exception {
 		int maxOrderNum = tFolderDao.selectMaxOrderNumByParentId(id);
 		return tFolderDao.addNewFolder(folderName, id, maxOrderNum+1) > 0L;

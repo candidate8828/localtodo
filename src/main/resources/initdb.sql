@@ -40,7 +40,7 @@ comments varchar(2000) -- 注释
 );
 
 insert into tb_user (create_dt,created_by,last_upd_dt,last_upded_by,username,password,dispname,is_delete,comments)
-values (now(),1,now(),1,'gfyangsong','a123456','杨松','0','主要使用人员');
+values (now(),1,now(),1,'admin','a123456','管理员','0','系统管理员');
 
 -- 工作记录表
 create table TB_WORK_LOG
@@ -59,8 +59,8 @@ is_delete int default '0', -- 0:未删除,1:已经删除
 log_title varchar(500), -- 任务名
 log_desc varchar(500) -- 将对应conntent中前500个去除掉html标签的字符放入这里
 );
-insert into test.tb_work_log (create_dt,created_by,last_upd_dt,last_upded_by,start_dt,end_dt,deadline, log_type,log_stat,is_delete,log_title,log_desc) 
-values (now(),'1',now(),'1',now(),null,null,'0','0','0','一个测试用的title','由“保护伞”公司最初研制的足以将人转变成僵尸的T型病毒仍然在地球上疯狂地蔓延着、肆虐着，威胁着要将所有的人类都转变成行动迟缓、嗜血如命的活死人。作为整个世界最后也是惟一的希望，沉睡的艾丽丝（米拉·乔沃维奇饰）这一次是在“保护伞”最机密的运作中心醒来的，随着她更深入地挖掘进这里面错综复杂的谜团的核心部分，她那充满着神秘色彩的过去也被一点点地揭露了出来。对于她来说，这个世界没有任何地方是绝对安全且隐蔽的，她只能主动出击，一个接着一个地抓捕那些需要对这场病毒的爆发负责的人，从他们的口中探知到她想要的真相。 一些若隐若现的暗示和线索让艾丽丝一路从东京追击到纽约，然后又从华盛顿辗转到莫斯科，最终却给她带来的是一系列相当令人震惊的可怕的启示，也逼迫着她不得不重新思考她曾经以为就是确凿的事实的一切。不但找到了新的同进同退的战友，还有以前熟悉的老朋友的回归，在他们的帮助下，艾丽丝必须得想办法在这样一个异常残酷的环境里活下去，因为只有这样她才能争取到足够多的时间，在濒于毁灭的地球上一边逃亡一边寻找真相，毕竟她已经没有任何回旋的余地了。');
+--insert into test.tb_work_log (create_dt,created_by,last_upd_dt,last_upded_by,start_dt,end_dt,deadline, log_type,log_stat,is_delete,log_title,log_desc) 
+--values (now(),'1',now(),'1',now(),null,null,'0','0','0','一个测试用的title','由“保护伞”公司最初研制的足以将人转变成僵尸的T型病毒仍然在地球上疯狂地蔓延着、肆虐着，威胁着要将所有的人类都转变成行动迟缓、嗜血如命的活死人。作为整个世界最后也是惟一的希望，沉睡的艾丽丝（米拉·乔沃维奇饰）这一次是在“保护伞”最机密的运作中心醒来的，随着她更深入地挖掘进这里面错综复杂的谜团的核心部分，她那充满着神秘色彩的过去也被一点点地揭露了出来。对于她来说，这个世界没有任何地方是绝对安全且隐蔽的，她只能主动出击，一个接着一个地抓捕那些需要对这场病毒的爆发负责的人，从他们的口中探知到她想要的真相。 一些若隐若现的暗示和线索让艾丽丝一路从东京追击到纽约，然后又从华盛顿辗转到莫斯科，最终却给她带来的是一系列相当令人震惊的可怕的启示，也逼迫着她不得不重新思考她曾经以为就是确凿的事实的一切。不但找到了新的同进同退的战友，还有以前熟悉的老朋友的回归，在他们的帮助下，艾丽丝必须得想办法在这样一个异常残酷的环境里活下去，因为只有这样她才能争取到足够多的时间，在濒于毁灭的地球上一边逃亡一边寻找真相，毕竟她已经没有任何回旋的余地了。');
 
 create table TB_WORK_CONTENT  -- 类似贴吧
 (
@@ -115,12 +115,12 @@ parent_id bigint default '0', -- 默认为顶级目录
 order_by int -- 顺序
 );
 
-insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
-values ('工作', now(), '1', now(), '1', '0', '0', '1');
-insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
-values ('技术', now(), '1', now(), '1', '0', '0', '2');
-insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
-values ('未分类', now(), '1', now(), '1', '0', '0', '3');
+--insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+--values ('工作', now(), '1', now(), '1', '0', '0', '1');
+--insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+--values ('技术', now(), '1', now(), '1', '0', '0', '2');
+--insert into TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
+--values ('未分类', now(), '1', now(), '1', '0', '0', '1');
 
 create table TB_LOG_FOLDER
 (

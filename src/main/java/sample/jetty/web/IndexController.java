@@ -18,6 +18,8 @@ package sample.jetty.web;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,16 +28,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import sample.jetty.service.InitService;
 import sample.jetty.service.TUserService;
 
 @Controller
 public class IndexController {
-
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	
 	@Autowired
 	private TUserService tUserService;
+	@Autowired
+	private InitService initService;
 
 	@RequestMapping("/")
 	public ModelAndView toIndex(HttpServletRequest request, ModelMap model) {
+		boolean alreadyInit = false;
+		try{
+			alreadyInit = initService.checkTablesExistsOrNot();
+		}catch(Exception e){
+			//logger.error("IndexController.toIndex", e);
+			alreadyInit = false;
+		}
+		model.addAttribute("alreadyInit", alreadyInit);
 		return new ModelAndView("index", model);
 	}
 

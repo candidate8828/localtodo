@@ -28,6 +28,7 @@
 		<mapper resource="sample/mybatis/mapper/FolderMapper.xml"/>
 		<mapper resource="sample/mybatis/mapper/EditorMdMapper.xml"/>
 		<mapper resource="sample/mybatis/mapper/FileMapper.xml"/>
+		<mapper resource="sample/mybatis/mapper/InitMapper.xml"/>
 	</mappers>
     
 </configuration>

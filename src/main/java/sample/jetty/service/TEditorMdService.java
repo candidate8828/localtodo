@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import sample.jetty.dao.TEditorMdDao;
 import sample.jetty.dao.TFolderDao;
+import sample.jetty.domain.FolderBean;
 import sample.jetty.domain.LogBean;
 import sample.jetty.domain.LogContentBean;
 
@@ -71,9 +72,32 @@ public class TEditorMdService {
 		} else if (-2L == folderId) { // -2: 垃圾箱  (delete==1)
 			resultList = tEditorMdDao.selectDeletedLogListOrderbyCreateDt(startNum, pageCount);
 		} else {
-			resultList = tEditorMdDao.selectLogListOrderbyFolderId(folderId, startNum, pageCount);
+			//resultList = tEditorMdDao.selectLogListOrderbyFolderId(folderId, startNum, pageCount);
+			ArrayList<Long> folderIdArr = new ArrayList<Long>();
+			selectAllChildrenFolderIdListByFolderId(folderIdArr, folderId);
+			resultList = tEditorMdDao.selectLogListOrderbyFolderIdArr(folderIdArr, startNum, pageCount);
 		}
 		return ((null==resultList)?(new ArrayList<LogBean>()):resultList);
+	}
+	
+	/**
+	 * 根据指定的folderId获取其及其所有子folderId 放入 folderIdArrList 中
+	 * @param folderIdArrList
+	 * @param folderId
+	 * @throws Exception
+	 */
+	@Transactional(readOnly=true)
+	public void selectAllChildrenFolderIdListByFolderId(ArrayList<Long> folderIdArrList, long folderId) throws Exception {
+		if (null == folderIdArrList) {
+			throw new Exception("folderIdArrList is null");
+		}
+		folderIdArrList.add(folderId);
+		List<FolderBean> childrenFolderList = tFolderDao.selectChildrenFoldersByParentId(folderId);
+		if (null != childrenFolderList && childrenFolderList.size() > 0) {
+			for (FolderBean folder : childrenFolderList) {
+				selectAllChildrenFolderIdListByFolderId(folderIdArrList, folder.getId());
+			}
+		}
 	}
 	
 	/**

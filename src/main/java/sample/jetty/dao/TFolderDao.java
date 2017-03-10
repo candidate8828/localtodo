@@ -100,11 +100,22 @@ public class TFolderDao {
 	
 	public long addFolderAndLogRelation(long parentFolderId, long logId) throws Exception {
 		if (parentFolderId < -2 || logId <= 0) {
-			throw new Exception("parentFolderId <= 0 or logId <= 0");
+			throw new Exception("parentFolderId < -2 or logId <= 0");
 		}
 		HashMap<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("parentFolderId", parentFolderId);
 		paramMap.put("logId", logId);
 		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addFolderAndLogRelation", paramMap);
 	}
+	
+	@SuppressWarnings({ "unchecked", "hiding" })
+	public <FolderBean> List<FolderBean> selectExchangeFolderListByOrderBy4Up(long folderId) throws Exception {
+		return (List<FolderBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectExchangeFolderListByOrderBy4Up", folderId);
+	}
+	
+	@SuppressWarnings({ "unchecked", "hiding" })
+	public <FolderBean> List<FolderBean> selectExchangeFolderListByOrderBy4Down(long folderId) throws Exception {
+		return (List<FolderBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectExchangeFolderListByOrderBy4Down", folderId);
+	}
+	
 }

@@ -1,5 +1,6 @@
 package sample.jetty.dao;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -46,6 +47,25 @@ public class TEditorMdDao {
 		paraMap.put("startNum", new Long(startNum));
 		paraMap.put("pageCount", new Long(pageCount));
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyFolderId", paraMap);
+	}
+	
+	public <LogBean> List<LogBean> selectLogListOrderbyFolderIdArr(ArrayList<Long> folderIdArray, int startNum, int pageCount) throws Exception {
+		String folderIdArr = " ( ";
+		int i = 0;
+		for (Long folderId : folderIdArray) {
+			if (0 == i) {
+				folderIdArr += " TB_LOG_FOLDER.FOLDER_ID = '" + folderId + "' ";
+			} else {
+				folderIdArr += " or TB_LOG_FOLDER.FOLDER_ID = '" + folderId + "' ";
+			}
+			++i;
+		}
+		folderIdArr += " ) ";
+		HashMap<String, Object> paraMap = new HashMap<String, Object>();
+		paraMap.put("folderIdArr", folderIdArr);
+		paraMap.put("startNum", new Long(startNum));
+		paraMap.put("pageCount", new Long(pageCount));
+		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyFolderIdArr", paraMap);
 	}
 	
 	@SuppressWarnings({ "hiding", "unchecked" })

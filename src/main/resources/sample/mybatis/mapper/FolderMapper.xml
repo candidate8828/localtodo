@@ -71,4 +71,16 @@
     insert into test.TB_LOG_FOLDER (create_dt, created_by, last_upd_dt, last_upded_by, log_id, folder_id) 
     values (now(), '1', now(), '1', #{logId}, #{parentFolderId})
     </insert>
+    
+    <select id="selectExchangeFolderListByOrderBy4Up" resultMap="FOLDER_BEAN_MAP" parameterType="long">
+	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.TB_FOLDER where ID = #{id}
+	union
+   	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.tb_folder where parent_id = (select parent_id From test.tb_folder where id = #{id}) and order_by = (select order_by-1 From test.tb_folder where id = #{id})
+    </select>
+    
+    <select id="selectExchangeFolderListByOrderBy4Down" resultMap="FOLDER_BEAN_MAP" parameterType="long">
+	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.TB_FOLDER where ID = #{id}
+	union
+   	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.tb_folder where parent_id = (select parent_id From test.tb_folder where id = #{id}) and order_by = (select order_by+1 From test.tb_folder where id = #{id})
+    </select>
 </mapper>
