@@ -1,7 +1,9 @@
 package sample.jetty.web;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -30,6 +32,26 @@ public class FolderController {
 		List<TreeBean> folderList = null;
 		try {
 			folderList = tFolderService.selectChildrenFoldersByParentId(id);
+		} catch (Exception e) {
+			logger.error("/getFolders", e);
+		}
+		if (null != folderList) {
+			logger.debug("folderList="+folderList.toArray());
+			return folderList;
+		} else {
+			return new ArrayList<TreeBean>();
+		}
+	}
+	
+	@RequestMapping("/getCheckedFolders")
+	@ResponseBody
+	public List<TreeBean> getCheckedFolders(@RequestParam(value="logId", required=false, defaultValue="0") long logId, HttpServletRequest request) {
+		List<TreeBean> folderList = null;
+		logger.debug("logId is ["+logId+"]");
+		try {
+			// TODO 获取整个树，并设置 checked by logId
+			//folderList = tFolderService.getTree(logId);
+			folderList = tFolderService.selectChildrenFoldersByParentId(0);
 		} catch (Exception e) {
 			logger.error("/getFolders", e);
 		}
@@ -82,15 +104,49 @@ public class FolderController {
 	@ResponseBody
 	public boolean deleteFolder(@RequestParam(value="id", required=true) long id, HttpServletRequest request) {
 		boolean delOpResult = false;
-		if(1L == id || 2L == id || 3L == id){
+		/*if (1L == id) {
 			return delOpResult;
-		}
+		}*/
 		try {
 			delOpResult = tFolderService.deleteFolderById(id);
 		} catch (Exception e) {
 			logger.error("/deleteFolder", e);
 		}
 		return delOpResult;
+	}
+	
+	@RequestMapping("/moveUp")
+	@ResponseBody
+	public Map<String, Object> moveUp(@RequestParam(value="selectedFolderId", required=true) long selectedFolderId, 
+			HttpServletRequest request) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		try {
+			tFolderService.moveUp(selectedFolderId);
+			resultMap.put("state", "move_succeed");
+			resultMap.put("errorContent", "");
+		} catch (Exception e) {
+			//logger.error("/moveUp", e);
+			resultMap.put("state", "move_failed");
+			resultMap.put("errorContent", e.getMessage());
+		}
+		return resultMap;
+	}
+	
+	@RequestMapping("/moveDown")
+	@ResponseBody
+	public Map<String, Object> moveDown(@RequestParam(value="selectedFolderId", required=true) long selectedFolderId, 
+			HttpServletRequest request) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		try {
+			tFolderService.moveDown(selectedFolderId);
+			resultMap.put("state", "move_succeed");
+			resultMap.put("errorContent", "");
+		} catch (Exception e) {
+			//logger.error("/moveUp", e);
+			resultMap.put("state", "move_failed");
+			resultMap.put("errorContent", e.getMessage());
+		}
+		return resultMap;
 	}
 	
 	@RequestMapping("/updateFolderName")

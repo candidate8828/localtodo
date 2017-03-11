@@ -96,7 +96,15 @@
 
                             if (link === "" || link === "http://")
                             {
-                                cm.replaceSelection("![" + alt + "](" + url + altAttr + ")");
+                            	if (url.indexOf('getImage') != -1) {
+                            		cm.replaceSelection("![" + alt + "](" + url + altAttr + ")");
+                            	} else {
+                            		alt = url.substring(url.lastIndexOf('/')+1);
+                            		url = url.substring(0, url.lastIndexOf('/')+1);
+                            		cm.replaceSelection("[" + alt + "](" + url + altAttr + ")");
+                            		alt = "";
+                            		url = "";
+                            	}
                             }
                             else
                             {

@@ -1,21 +1,28 @@
 package sample.jetty.web;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -93,24 +100,42 @@ public class ImageUploadController {
 				FileBean fileBean = new FileBean();
 				fileBean.setCreateTime(createTime);
 				if (fileName.lastIndexOf(".") < fileName.length()) {
-					fileBean.setFileType(fileName.substring(fileName.lastIndexOf(".")+1));
+					fileBean.setFileType((fileName.substring(fileName.lastIndexOf(".")+1)+"").toLowerCase());
 				}
 				String relatePath = File.separator + "files" + File.separator + logId + File.separator + trueFileName;
-				fileBean.setRelatePath(relatePath);
+				fileBean.setRelatePath(relatePath.replaceAll("\\\\", "/"));
 				fileBean.setCreatedBy(1L);
 				fileBean.setLastUpdedBy(1L);
 				fileBean.setCreateDt(now);
 				fileBean.setLastUpdDt(now);
+				fileBean.setLogId(logId);
+				fileBean.setFileName(trueFileName);
 				
 				// 路径相关信息存入表中
 				tFileService.addNewFile(fileBean);
 				
-				resultMap.put("success", "1");
+				logger.debug(request.getRequestURI());
+				logger.debug(request.getRemoteHost());
+				logger.debug(request.getRemotePort()+"");
+				logger.debug(request.getRequestURL()+"");
+				logger.debug(request.getServerName()+":"+request.getServerPort());
+				
+				String url = "";
+				//"jpg", "jpeg", "gif", "png", "bmp", "webp"
+				if("jpg|jpeg|gif|png|bmp|webp".indexOf((fileName.substring(fileName.lastIndexOf(".")+1)+"").toLowerCase()) != -1) {
+					// image
+					url = "http://" + request.getServerName() + ":" + request.getServerPort() + "/getImage/" + logId + "/" + createTime;
+				} else {
+					// other file
+					url = targetpath.replaceAll("\\\\", "/");
+				}
+				
+				resultMap.put("success", 1);
 				resultMap.put("message", "");
-				resultMap.put("url", ""); // TODO 页面上显示的图片的url
+				resultMap.put("url", url); // 页面上显示的图片的url
 			} catch(Exception e) {
 				logger.error("EditorMdController.deleteLogById", e);
-				resultMap.put("success", "0");
+				resultMap.put("success", 0);
 				resultMap.put("message", e.getMessage());
 			} finally {
 				try {
@@ -137,5 +162,50 @@ public class ImageUploadController {
 			resultMap.put("message", "logId is null");
 		}
 		return resultMap;
+	}
+	
+	@RequestMapping(value="/getImage/{logId}/{createTime}")
+	public void getImage(HttpServletRequest request, HttpServletResponse response, HttpSession session, 
+			@PathVariable String logId,@PathVariable String createTime) {
+		FileBean file = null;
+		try{
+			// 从数据库中获取存放地址
+			file = tFileService.getFileByLogIdAndCreateTime(new Long(logId), new Long(createTime));
+		}catch(Exception e){
+			file = new FileBean();
+			logger.error("ImageUploadController.getImage", e);
+		}
+		EmbedMySqlServer mysqldbServer = SampleJettyApplication.MAIN_THREAD_LOCAL.get("embedMysqlServer");
+		String dbPath = mysqldbServer.getEmbedMySqlHome();
+		File logFileDir = new File(dbPath).getParentFile().getAbsoluteFile();
+		String rootPath = logFileDir.getAbsolutePath() + File.separator + "files" + File.separator;
+		String filesDirStr = rootPath + logId;
+		String targetImagePath = filesDirStr + File.separator + file.getFileName();
+//		File targetImageFile = new File(targetImagePath);
+		FileInputStream inputStream = null;
+//		BufferedInputStream bufInputStream = null;
+//		int BUFFER_SIZE = 4096;
+		OutputStream os = null;
+		BufferedImage image = null;
+		try {
+			inputStream = new FileInputStream(targetImagePath);
+			image = ImageIO.read(inputStream);
+			os = response.getOutputStream();
+			ImageIO.write(image, file.getFileType(), os);
+			/*
+			inputStream = new FileInputStream(targetImageFile);
+			bufInputStream = new BufferedInputStream(inputStream);
+			byte[] buffer = new byte[BUFFER_SIZE];
+			int bytesRead = -1;
+			while ((bytesRead = bufInputStream.read(buffer)) != -1) {
+				os.write(buffer, 0, bytesRead);
+			}*/
+			os.flush();
+		} catch (Exception e) {
+			logger.error("ImageUploadController.getImage", e);
+		} finally {
+			try{if(null != os){os.close();}}catch(Exception e){}
+			try{if(null != inputStream){inputStream.close();}}catch(Exception e){}
+		}
 	}
 }

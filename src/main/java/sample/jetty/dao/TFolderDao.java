@@ -35,12 +35,12 @@ public class TFolderDao {
 		}
 	}
 
-	public boolean addNewFolder(String folderName, long id, int maxOrderNum) throws Exception {
+	public long addNewFolder(String folderName, long id, int maxOrderNum) throws Exception {
 		HashMap<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("folderName", folderName);
 		paramMap.put("id", id);
 		paramMap.put("maxOrderNum", maxOrderNum);
-		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addNewFolder", paramMap) > 0;
+		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addNewFolder", paramMap);
 	}
 	
 	public FolderBean selectFolderById(long id) throws Exception {
@@ -100,11 +100,22 @@ public class TFolderDao {
 	
 	public long addFolderAndLogRelation(long parentFolderId, long logId) throws Exception {
 		if (parentFolderId < -2 || logId <= 0) {
-			throw new Exception("parentFolderId <= 0 or logId <= 0");
+			throw new Exception("parentFolderId < -2 or logId <= 0");
 		}
 		HashMap<String, Object> paramMap = new HashMap<String, Object>();
 		paramMap.put("parentFolderId", parentFolderId);
 		paramMap.put("logId", logId);
-		return this.sqlSessionTemplate.update("SAMPLE_FOLDER_MAPPER.addFolderAndLogRelation", paramMap);
+		return this.sqlSessionTemplate.insert("SAMPLE_FOLDER_MAPPER.addFolderAndLogRelation", paramMap);
 	}
+	
+	@SuppressWarnings({ "unchecked", "hiding" })
+	public <FolderBean> List<FolderBean> selectExchangeFolderListByOrderBy4Up(long folderId) throws Exception {
+		return (List<FolderBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectExchangeFolderListByOrderBy4Up", folderId);
+	}
+	
+	@SuppressWarnings({ "unchecked", "hiding" })
+	public <FolderBean> List<FolderBean> selectExchangeFolderListByOrderBy4Down(long folderId) throws Exception {
+		return (List<FolderBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectExchangeFolderListByOrderBy4Down", folderId);
+	}
+	
 }

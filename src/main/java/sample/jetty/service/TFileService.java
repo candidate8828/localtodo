@@ -21,4 +21,9 @@ private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	public long addNewFile(FileBean fileBean) throws Exception {
 		return tFileDao.addNewFile(fileBean);
 	}
+	
+	@Transactional(readOnly=true)
+	public FileBean getFileByLogIdAndCreateTime(long logId, long createTime) throws Exception {
+		return tFileDao.getFileByLogIdAndCreateTime(logId, createTime);
+	}
 }

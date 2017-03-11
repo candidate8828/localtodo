@@ -10,10 +10,24 @@ public class FileBean extends BaseBean implements Serializable {
 		
 	}
 	
+	private long logId;
+	private String fileName;
 	private long createTime;
 	private String relatePath;
 	private String fileType = "file"; // jpg doc ...
 
+	public long getLogId() {
+		return logId;
+	}
+	public void setLogId(long logId) {
+		this.logId = logId;
+	}
+	public String getFileName() {
+		return fileName;
+	}
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 	public long getCreateTime() {
 		return createTime;
 	}

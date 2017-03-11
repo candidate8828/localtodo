@@ -4,26 +4,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="SAMPLE_FOLDER_MAPPER">
 	<resultMap type="sample.jetty.domain.TreeBean" id="TREE_BEAN_MAP">
-		<result column="ID"          jdbcType="INTEGER" property="id"    javaType="long"/>
+		<result column="ID"          jdbcType="BIGINT" property="id"    javaType="long"/>
 		<result column="FOLDER_NAME" jdbcType="VARCHAR" property="text"  javaType="String"/>
 		<result column="STATE"       jdbcType="VARCHAR" property="state" javaType="String"/>
 	</resultMap>
 	<resultMap type="sample.jetty.domain.FolderBean" id="FOLDER_BEAN_MAP">
-		<result column="ID"              jdbcType="INTEGER"   property="id"          javaType="long"/>
+		<result column="ID"              jdbcType="BIGINT"   property="id"          javaType="long"/>
 		<result column="FOLDER_NAME"     jdbcType="VARCHAR"   property="folderName"  javaType="String"/>
 		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
-		<result column="CREATED_BY"      jdbcType="INTEGER"   property="createdBy"   javaType="long"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"   property="createdBy"   javaType="long"/>
 		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
-		<result column="LAST_UPDED_BY"   jdbcType="INTEGER"   property="lastUpdedBy" javaType="long"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"   property="lastUpdedBy" javaType="long"/>
 		<result column="IS_DELETE"       jdbcType="INTEGER"   property="isDelete"    javaType="int"/>
-		<result column="PARENT_ID"       jdbcType="INTEGER"   property="parentId"    javaType="long"/>
+		<result column="PARENT_ID"       jdbcType="BIGINT"   property="parentId"    javaType="long"/>
 		<result column="ORDER_BY"        jdbcType="INTEGER"   property="orderBy"     javaType="int"/>
 	</resultMap>
-	<!-- <select id="selectRootFolders" resultMap="TREE_BEAN_MAP">
-        select ID,FOLDER_NAME,'closed' AS STATE,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY 
-		from test.TB_FOLDER where is_delete = '0' and parent_id = '0' order by ORDER_BY asc
-	</select> -->
-    
+	
     <select id="selectChildrenFoldersByParentId" resultMap="FOLDER_BEAN_MAP" parameterType="long">
         select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY 
 		from test.TB_FOLDER where is_delete = '0' and parent_id = #{id} order by ORDER_BY asc
@@ -37,7 +33,7 @@
     	select max(order_by) as maxOrderNum from test.TB_FOLDER where is_delete = '0' and parent_id = #{id}
     </select>
     
-    <insert id="addNewFolder" parameterType="HashMap" >
+    <insert id="addNewFolder" useGeneratedKeys="true" keyProperty="id" parameterType="HashMap" >
     	insert into test.TB_FOLDER (folder_name, create_dt, created_by, last_upd_dt, last_upded_by, is_delete, parent_id, order_by) 
 		values (#{folderName}, now(), '1', now(), '1', '0', #{id}, #{maxOrderNum})
     </insert>
@@ -71,8 +67,20 @@
     	WHERE id = #{id}
     </update>
     
-    <insert id="addFolderAndLogRelation" parameterType="HashMap" >
+    <insert id="addFolderAndLogRelation" useGeneratedKeys="true" keyProperty="id" parameterType="HashMap" >
     insert into test.TB_LOG_FOLDER (create_dt, created_by, last_upd_dt, last_upded_by, log_id, folder_id) 
     values (now(), '1', now(), '1', #{logId}, #{parentFolderId})
     </insert>
+    
+    <select id="selectExchangeFolderListByOrderBy4Up" resultMap="FOLDER_BEAN_MAP" parameterType="long">
+	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.TB_FOLDER where ID = #{id}
+	union
+   	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.tb_folder where parent_id = (select parent_id From test.tb_folder where id = #{id}) and order_by = (select order_by-1 From test.tb_folder where id = #{id})
+    </select>
+    
+    <select id="selectExchangeFolderListByOrderBy4Down" resultMap="FOLDER_BEAN_MAP" parameterType="long">
+	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.TB_FOLDER where ID = #{id}
+	union
+   	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.tb_folder where parent_id = (select parent_id From test.tb_folder where id = #{id}) and order_by = (select order_by+1 From test.tb_folder where id = #{id})
+    </select>
 </mapper>
