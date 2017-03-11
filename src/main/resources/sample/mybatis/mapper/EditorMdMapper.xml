@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="SAMPLE_EDITORMD_MAPPER">
+	<resultMap type="sample.jetty.domain.LogBean" id="LOG_BEAN_MAP">
+		<result column="ID"              jdbcType="BIGINT"   property="id"          javaType="long"/>
+		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"   property="createdBy"   javaType="long"/>
+		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"   property="lastUpdedBy" javaType="long"/>
+		<result column="START_DT"        jdbcType="TIMESTAMP" property="startDt"     javaType="java.util.Date"/>
+		<result column="END_DT"          jdbcType="TIMESTAMP" property="endDt"       javaType="java.util.Date"/>
+		<result column="DEADLINE"        jdbcType="TIMESTAMP" property="deadline"    javaType="java.util.Date"/>
+		<result column="LOG_TYPE"        jdbcType="INTEGER"   property="logType"     javaType="int"/>
+		<result column="LOG_STAT"        jdbcType="INTEGER"   property="logStat"     javaType="int"/>
+		<result column="IS_DELETE"       jdbcType="INTEGER"   property="isDelete"    javaType="int"/>
+		<result column="LOG_TITLE"       jdbcType="VARCHAR"   property="logTitle"    javaType="String"/>
+		<result column="LOG_DESC"        jdbcType="VARCHAR"   property="logDesc"     javaType="String"/>
+	</resultMap>
+	<resultMap type="sample.jetty.domain.LogContentBean" id="LOG_CONTENT_BEAN_MAP">
+		<result column="ID"              jdbcType="BIGINT"   property="id"          javaType="long"/>
+		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"   property="createdBy"   javaType="long"/>
+		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"   property="lastUpdedBy" javaType="long"/>
+		<result column="LOG_ID"          jdbcType="BIGINT"   property="logId"       javaType="long"/>
+		<result column="ORDER_BY"        jdbcType="INTEGER"   property="orderBy"     javaType="int"/>
+		<result column="IS_DELETE"       jdbcType="INTEGER"   property="isDelete"    javaType="int"/>
+		<result column="LOG_CONTENT"     jdbcType="VARCHAR"   property="logContent"  javaType="String"/>
+	</resultMap>
+	
+	<select id="selectEditorMdById" parameterType="long" resultMap="LOG_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where id= #{id} 
+	</select>
+	
+	<select id="selectEditorMdContentListById" parameterType="long" resultMap="LOG_CONTENT_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,LOG_ID,ORDER_BY,IS_DELETE,LOG_CONTENT 
+	  from test.TB_WORK_CONTENT t where t.IS_DELETE = '0' and t.LOG_ID=#{id} order by ORDER_BY asc 
+	</select>
+	
+	<select id="selectLogListOrderbyCreateDt" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where IS_DELETE = '0' order by CREATE_DT desc limit ${startNum},${pageCount} 
+	</select>
+	
+	<select id="selectLogListOrderbyFolderId" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where IS_DELETE = '0' 
+	   and exists (select 1 from test.TB_LOG_FOLDER where TB_LOG_FOLDER.LOG_ID = TB_WORK_LOG.ID and TB_LOG_FOLDER.FOLDER_ID = #{folderId}) 
+	 order by CREATE_DT desc limit ${startNum},${pageCount} 
+	</select>
+	
+	<select id="selectLogListOrderbyFolderIdArr" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where IS_DELETE = '0' 
+	   and exists (select 1 from test.TB_LOG_FOLDER where TB_LOG_FOLDER.LOG_ID = TB_WORK_LOG.ID and ${folderIdArr}) 
+	 order by CREATE_DT desc limit ${startNum},${pageCount} 
+	</select>
+	
+	<select id="selectDeletedLogListOrderbyCreateDt" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where IS_DELETE = '1' order by CREATE_DT desc limit ${startNum},${pageCount} 
+	</select>
+	
+	<update id="saveUpdateLogContent" parameterType="sample.jetty.domain.LogBean">
+	update test.TB_WORK_LOG t 
+	   set t.LAST_UPD_DT = #{lastUpdDt},
+	       t.LAST_UPDED_BY = #{lastUpdedBy},
+	       t.START_DT = #{startDt},
+	       t.END_DT = #{endDt},
+	       t.DEADLINE = #{deadline},
+	       t.LOG_TYPE = #{logType},
+	       t.LOG_STAT = #{logStat},
+	       t.IS_DELETE = #{isDelete},
+	       t.LOG_TITLE = #{logTitle},
+	       t.LOG_DESC = #{logDesc} 
+	 where t.ID = #{id} 
+	</update>
+	
+	<insert id="addNewLogContentRecord" useGeneratedKeys="true" keyProperty="id" parameterType="sample.jetty.domain.LogContentBean">
+	insert into test.TB_WORK_CONTENT (CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,LOG_ID,ORDER_BY,IS_DELETE,LOG_CONTENT)
+	values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy}, #{logId}, #{orderBy}, #{isDelete}, #{logContent})
+	</insert>
+	
+	<update id="updateLogContentRecord" parameterType="sample.jetty.domain.LogContentBean">
+	update test.TB_WORK_CONTENT t
+	   set t.LAST_UPD_DT = #{lastUpdDt},
+	       t.LAST_UPDED_BY = #{lastUpdedBy},
+	       t.LOG_ID = #{logId},
+	       t.ORDER_BY = #{orderBy},
+	       t.IS_DELETE = #{isDelete},
+	       t.LOG_CONTENT = #{logContent}
+	 where t.ID = #{id}
+	</update>
+	
+	<delete id="deleteLogContentRecord" parameterType="long">
+	delete from test.TB_WORK_CONTENT where ID = #{id}
+	</delete>
+	
+	<insert id="addNewLogRecord" useGeneratedKeys="true" keyProperty="id" parameterType="sample.jetty.domain.LogBean">
+	insert into test.TB_WORK_LOG (CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC)
+	values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy}, #{startDt}, #{endDt}, #{deadline}, #{logType}, #{logStat}, #{isDelete}, #{logTitle}, #{logDesc})
+	</insert>
+	
+	<delete id="deleteLogById" parameterType="long">
+	update test.TB_WORK_LOG set LAST_UPD_DT = now(),IS_DELETE = '1' where ID = #{logId}
+	</delete>
+</mapper>
