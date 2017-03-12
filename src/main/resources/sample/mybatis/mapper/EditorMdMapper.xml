@@ -60,6 +60,16 @@
 	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
 	  from test.TB_WORK_LOG where IS_DELETE = '0' 
 	   and exists (select 1 from test.TB_LOG_FOLDER where TB_LOG_FOLDER.LOG_ID = TB_WORK_LOG.ID and TB_LOG_FOLDER.FOLDER_ID = #{folderId}) 
+	   <if test="searchText != null">
+	   and (test.TB_WORK_LOG.LOG_TITLE like CONCAT('%',#{searchText},'%') 
+	        or test.TB_WORK_LOG.LOG_DESC like CONCAT('%',#{searchText},'%')
+	        or exists (
+		        select 1 from test.TB_WORK_CONTENT 
+		         where test.TB_WORK_LOG.ID = test.TB_WORK_CONTENT.LOG_ID 
+		           and test.TB_WORK_CONTENT.LOG_CONTENT like CONCAT('%',#{searchText},'%')
+		    )
+	   )
+	   </if>
 	 order by CREATE_DT desc limit ${startNum},${pageCount} 
 	</select>
 	
@@ -67,12 +77,33 @@
 	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
 	  from test.TB_WORK_LOG where IS_DELETE = '0' 
 	   and exists (select 1 from test.TB_LOG_FOLDER where TB_LOG_FOLDER.LOG_ID = TB_WORK_LOG.ID and ${folderIdArr}) 
+	   <if test="searchText != null">
+	   and (test.TB_WORK_LOG.LOG_TITLE like CONCAT('%',#{searchText},'%') 
+	        or test.TB_WORK_LOG.LOG_DESC like CONCAT('%',#{searchText},'%')
+	        or exists (
+		        select 1 from test.TB_WORK_CONTENT 
+		         where test.TB_WORK_LOG.ID = test.TB_WORK_CONTENT.LOG_ID 
+		           and test.TB_WORK_CONTENT.LOG_CONTENT like CONCAT('%',#{searchText},'%')
+		    )
+	   )
+	   </if>
 	 order by CREATE_DT desc limit ${startNum},${pageCount} 
 	</select>
 	
 	<select id="selectDeletedLogListOrderbyCreateDt" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
 	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
-	  from test.TB_WORK_LOG where IS_DELETE = '1' order by CREATE_DT desc limit ${startNum},${pageCount} 
+	  from test.TB_WORK_LOG where IS_DELETE = '1' 
+	  <if test="searchText != null">
+	   and (test.TB_WORK_LOG.LOG_TITLE like CONCAT('%',#{searchText},'%') 
+	        or test.TB_WORK_LOG.LOG_DESC like CONCAT('%',#{searchText},'%')
+	        or exists (
+		        select 1 from test.TB_WORK_CONTENT 
+		         where test.TB_WORK_LOG.ID = test.TB_WORK_CONTENT.LOG_ID 
+		           and test.TB_WORK_CONTENT.LOG_CONTENT like CONCAT('%',#{searchText},'%')
+		    )
+	   )
+	  </if>
+	 order by CREATE_DT desc limit ${startNum},${pageCount} 
 	</select>
 	
 	<update id="saveUpdateLogContent" parameterType="sample.jetty.domain.LogBean">

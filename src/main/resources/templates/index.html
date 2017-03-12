@@ -561,9 +561,10 @@ function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 	}
 	// =================================== 获取指定folder下的记录
 	if (!searchText) {
-		
+		$('#searchTextId').val("");
+		$("#searchText").textbox('setValue', '');
 	}
-	if(!folderId){
+	if (!folderId) {
 		folderId = 0;
 	}
 	$('#selectedFolderId').val(folderId);

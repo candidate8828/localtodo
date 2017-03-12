@@ -67,14 +67,14 @@ public class TEditorMdService {
 		if (0L == folderId) {
 			resultList = tEditorMdDao.selectLogListOrderbyCreateDt(startNum, pageCount, searchText);
 		} else if (-1L == folderId) { // -1: 我的文件夹
-			resultList = tEditorMdDao.selectLogListOrderbyFolderId(-1L, startNum, pageCount);
+			resultList = tEditorMdDao.selectLogListOrderbyFolderId(-1L, startNum, pageCount, searchText);
 		} else if (-2L == folderId) { // -2: 垃圾箱  (delete==1)
-			resultList = tEditorMdDao.selectDeletedLogListOrderbyCreateDt(startNum, pageCount);
+			resultList = tEditorMdDao.selectDeletedLogListOrderbyCreateDt(startNum, pageCount, searchText);
 		} else {
-			//resultList = tEditorMdDao.selectLogListOrderbyFolderId(folderId, startNum, pageCount);
+			//resultList = tEditorMdDao.selectLogListOrderbyFolderId(folderId, startNum, pageCount, searchText);
 			ArrayList<Long> folderIdArr = new ArrayList<Long>();
 			selectAllChildrenFolderIdListByFolderId(folderIdArr, folderId);
-			resultList = tEditorMdDao.selectLogListOrderbyFolderIdArr(folderIdArr, startNum, pageCount);
+			resultList = tEditorMdDao.selectLogListOrderbyFolderIdArr(folderIdArr, startNum, pageCount, searchText);
 		}
 		return ((null==resultList)?(new ArrayList<LogBean>()):resultList);
 	}
