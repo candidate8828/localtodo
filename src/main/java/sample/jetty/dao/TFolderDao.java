@@ -118,4 +118,29 @@ public class TFolderDao {
 		return (List<FolderBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.selectExchangeFolderListByOrderBy4Down", folderId);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <LogFolderBean> List<LogFolderBean> getLogFolderBeanListByLogId(long logId) throws Exception {
+		List<LogFolderBean> resultList = (List<LogFolderBean>)this.sqlSessionTemplate.selectList("SAMPLE_FOLDER_MAPPER.getLogFolderBeanListByLogId", logId);
+		return resultList;
+	}
+	
+	/**
+	 * 删除指定id的关联关系
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
+	public int deleteLogFolderById(long id) throws Exception {
+		return this.sqlSessionTemplate.delete("SAMPLE_FOLDER_MAPPER.deleteLogFolderById", id);
+	}
+	
+	/**
+	 * 删除指定 logId 对应的 LogFolder 关联关系
+	 * @param logId
+	 * @return
+	 * @throws Exception
+	 */
+	public int deleteLogFolderByLogId(long logId) throws Exception {
+		return this.sqlSessionTemplate.delete("SAMPLE_FOLDER_MAPPER.deleteLogFolderByLogId", logId);
+	}
 }

@@ -61,13 +61,12 @@ public class TEditorMdService {
 	}
 	
 	@Transactional(readOnly=true)
-	public List<LogBean> selectLogListByFolderId(long folderId, int startNum, int pageCount) throws Exception {
+	public List<LogBean> selectLogListByFolderId(long folderId, int startNum, int pageCount, String searchText) throws Exception {
 		List<LogBean> resultList = null;
 		// 0: 最新的文档
 		if (0L == folderId) {
-			resultList = tEditorMdDao.selectLogListOrderbyCreateDt(startNum, pageCount);
-		} // -1: 我的文件夹
-		else if (-1L == folderId) {
+			resultList = tEditorMdDao.selectLogListOrderbyCreateDt(startNum, pageCount, searchText);
+		} else if (-1L == folderId) { // -1: 我的文件夹
 			resultList = tEditorMdDao.selectLogListOrderbyFolderId(-1L, startNum, pageCount);
 		} else if (-2L == folderId) { // -2: 垃圾箱  (delete==1)
 			resultList = tEditorMdDao.selectDeletedLogListOrderbyCreateDt(startNum, pageCount);
@@ -263,6 +262,7 @@ public class TEditorMdService {
 	
 	@Transactional
 	public boolean deleteLogById(long logId) throws Exception {
+		tFolderDao.deleteLogFolderByLogId(logId);
 		return tEditorMdDao.deleteLogById(logId);
 	}
 }

@@ -69,6 +69,7 @@
 	<div data-options="region:'north',split:false" style="boder:0px;height:42px;overflow:hidden;background-color:#CEE9FF">
 		<!-- div class="easyui-panel" style="padding:0px;boder:0px;width:100%,height:100%" -->
 		<input type="hidden" id="selectedLogId" name="selectedLogId" value="" />
+		<input type="hidden" id="searchTextId" name="searchText" value="" />
 		<div class="row">
 			<div class="col-md-7" style="padding:0px 0px 0px 15px;">
 			<input id="selectedLogTitleId" class="easyui-textbox" style="boder:0px;border-radius:0px 0px 0px 0px;width:100%;height:40px;padding:15px" data-options="prompt:'标题'"/>
@@ -186,6 +187,11 @@ data-options="
 </div>
 <script type="text/javascript" >
 /*<![CDATA[*/
+String.prototype.trim=function()
+{
+     return this.replace(/(^\s*)|(\s*$)/g, '');
+}
+
 function changecolor(obj) {
 	var selectedLogId = '';
 	try{
@@ -478,7 +484,7 @@ function addlog() {
 	});
 }
 
-function getLogsOrderbyCreateDtDesc(folderId) {
+function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 	$("#loglistRownumId").val(20);
 	var selectedTreeNode = $('#tfolder').tree('getSelected');
 	if(0 == folderId) {
@@ -563,7 +569,7 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 	$.ajax({
 		type: 'POST',
 		url: '/getLogListByFolderId',
-		data: { 'folderId':folderId,"rownum":rownumValue },
+		data: { 'folderId':folderId, "rownum":rownumValue, "searchText":searchText },
 		dataType: 'json',
 		success: function(data, textStatus){
 			//console.log(data);
@@ -607,7 +613,9 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 							    		if ('relationSet' == e.target.id) {
 							    			var selectedItemLogId = tempAtem.id;
 							    			//console.log(selectedItemLogId);
+							    			//console.log(((tempAtem.title+"").length>15)?("关联设置（"+(tempAtem.title+"").substring(0,15)+"...）"):("关联设置（"+tempAtem.title+"）"));
 							    			$('#relationSetWindow').dialog({
+							    				title: ((tempAtem.title+"").length>15)?("关联设置（"+(tempAtem.title+"").substring(0,15)+"...）"):("关联设置（"+tempAtem.title+"）"),
 							    			    width:600,
 							    			    height:400,
 							    			    modal:true,
@@ -617,16 +625,89 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 							    					handler:function(){
 							    						var checkedNodeArr = new Array();
 							    						var nodes = $('#tfolder4Set').tree('getChecked');
-							    			            var s = '';
-							    			            for(var i=0; i<nodes.length; i++){
-							    			            	checkedNodeArr[i] = nodes[i];
+							    						var checkedFolderIds = "";
+							    			            if (nodes != null  &&  nodes.length>0) {
+								    			            for(var i=0; i<nodes.length; i++){
+								    			            	checkedNodeArr[i] = nodes[i].id;
+								    			            	//console.log(checkedNodeArr[i]);
+								    			            }
+								    			            //console.log(checkedNodeArr);
+								    			            checkedFolderIds = checkedNodeArr.join();
+								    			            //console.log(checkedFolderIds);
+								    			            // TODO 发起ajax请求提交后台修改关联关系
+								    			            $.ajax({
+									    		        		type: 'POST',
+									    		        		url: '/changeLogFolderRelation',
+									    		        		data: {'logId': selectedItemLogId, 'checkedFolderIds': checkedFolderIds },
+									    		        		dataType: 'json',
+									    		        		success: function(data, textStatus){
+									    		        			if ('update_succeed' == data.state) {
+									    		        				var rootsArr = $('#tfolder4Set').tree('getRoots');
+											    						for (var i=0; i<rootsArr.length; i++){
+											    							$('#tfolder4Set').tree('remove', rootsArr[i].target);
+											    						}
+											    						$('#relationSetWindow').dialog('close');
+									    			        			$.messager.show({
+									    			        				title:'系统信息',
+									    			        				msg:'关联设置成功！',
+									    			        				showSpeed:100,
+									    			        				showType:'fade',
+									    			        				timeout:400,
+									    			        				style:{
+									    			        					right:'',
+									    			        					bottom:''
+									    			        				}
+									    			        			});
+									    		        			} else {
+									    		        				$.messager.show({
+									    			        				title:'系统信息',
+									    			        				msg:'关联设置失败！'+data.errorContent,
+									    			        				showSpeed:100,
+									    			        				showType:'fade',
+									    			        				timeout:4000,
+									    			        				style:{
+									    			        					right:'',
+									    			        					bottom:''
+									    			        				}
+									    			        			});
+									    		        			}
+									    		        		},
+									    		        		error : function(e) {
+									    		        			$.messager.show({
+								    			        				title:'系统信息',
+								    			        				msg:'调用 /changeLogFolderRelation 错误！',
+								    			        				showSpeed:100,
+								    			        				showType:'fade',
+								    			        				timeout:4000,
+								    			        				style:{
+								    			        					right:'',
+								    			        					bottom:''
+								    			        				}
+								    			        			});
+									    		        		}
+									    		        	});
+							    			            } else {
+							    			            	// 提示说必须选择对应的文件夹才能保存
+							    			            	$.messager.show({
+						    			        				title:'系统信息',
+						    			        				msg:'必须选择对应的文件夹才能保存！',
+						    			        				showSpeed:100,
+						    			        				showType:'fade',
+						    			        				timeout:4000,
+						    			        				style:{
+						    			        					right:'',
+						    			        					bottom:''
+						    			        				}
+						    			        			});
 							    			            }
-							    			            console.log(checkedNodeArr);
 							    					}
 							    				},{
 							    					text:'取消',
 							    					handler:function(){
-							    						$('#tfolder4Set').tree('find', -1);
+							    						var rootsArr = $('#tfolder4Set').tree('getRoots');
+							    						for (var i=0; i<rootsArr.length; i++){
+							    							$('#tfolder4Set').tree('remove', rootsArr[i].target);
+							    						}
 							    						$('#relationSetWindow').dialog('close');
 							    					}
 							    				}]
@@ -641,11 +722,21 @@ function getLogsOrderbyCreateDtDesc(folderId) {
 							    				},
 							    				checkbox:true,
 							    				cascadeCheck: false,
-							    				onlyLeafCheck: false
+							    				onlyLeafCheck: false,
+							    				onLoadSuccess:function(node, data){
+							    					var nodes = $('#tfolder4Set').tree('getChecked');
+						    			            if (nodes != null  &&  nodes.length>0) {
+							    			            for(var i=0; i<nodes.length; i++){
+							    			            	// 设置node的样式为打开的folder
+							    			            	$(nodes[i].target).find(".tree-file").removeClass("tree-file").addClass("tree-folder tree-folder-open");
+							    			            	//console.log(nodes[i].target.className);
+							    			            	//$(nodes[i].target).removeClass("tree-icon tree-file").addClass("tree-icon tree-folder tree-folder-open ");
+							    			            }
+						    			            }
+							    				}
 							    			});
 							    			$("#tfolder4Set").tree("options").queryParams={'logId':selectedItemLogId};
-							    			$("#tfolder4Set").tree({url:"/getCheckedFolders"});
-							    			
+							    			$("#tfolder4Set").tree({url:"/getCheckedFolders"+"?time="+(new Date().getTime())});
 							    			//console.log($('#tfolder4Set').tree("options"));
 							    			$('#relationSetWindow').dialog('open');
 							    		} else if ('deleteLog' == e.target.id) {
@@ -1201,9 +1292,25 @@ $(document).ready(function(){
 	// 搜索指定内容
 	$("#searchText").textbox('textbox').bind('keydown', function(e){
 		if (e.keyCode == 13){	// when press ENTER key, accept the inputed value.
-			//t.textbox('setValue', $(this).val());
-			alert($(this).val());
-			// TODO 提交后台进行动态内容查询
+			$('#searchTextId').val($(this).val());
+			if (($(this).val()+"").trim() == "") {
+				$.messager.show({
+    				title:'系统信息',
+    				msg:'搜索内容不能为空！',
+    				showSpeed:100,
+    				showType:'fade',
+    				timeout:4000,
+    				style:{
+    					right:'',
+    					bottom:''
+    				}
+    			});
+				return false;
+			} // TODO 提交后台进行动态内容查询
+			else {
+				var selectedFolderId = $('#selectedFolderId').val();
+				getLogsOrderbyCreateDtDesc(selectedFolderId, ($(this).val()+"").trim());
+			}
 		}
 	});
 

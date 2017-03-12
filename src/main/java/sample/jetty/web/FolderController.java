@@ -43,15 +43,26 @@ public class FolderController {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param logId 
+	 * @param id expanded folder's id
+	 * @param request
+	 * @return
+	 */
 	@RequestMapping("/getCheckedFolders")
 	@ResponseBody
-	public List<TreeBean> getCheckedFolders(@RequestParam(value="logId", required=false, defaultValue="0") long logId, HttpServletRequest request) {
+	public List<TreeBean> getCheckedFolders(@RequestParam(value="logId", required=false, defaultValue="0") long logId,@RequestParam(value="id", required=false, defaultValue="0") long id, HttpServletRequest request) {
 		List<TreeBean> folderList = null;
 		logger.debug("logId is ["+logId+"]");
+		logger.debug("folderId is ["+id+"]");
 		try {
-			// TODO 获取整个树，并设置 checked by logId
-			//folderList = tFolderService.getTree(logId);
-			folderList = tFolderService.selectChildrenFoldersByParentId(0);
+			if (id == 0) {
+				// 获取整个树，并设置 checked by logId
+				folderList = tFolderService.getCheckedFoldersByLogId(logId);
+			} else {
+				folderList = new ArrayList<TreeBean>();
+			}
 		} catch (Exception e) {
 			logger.error("/getFolders", e);
 		}
@@ -61,6 +72,32 @@ public class FolderController {
 		} else {
 			return new ArrayList<TreeBean>();
 		}
+	}
+	
+	@RequestMapping("/changeLogFolderRelation")
+	@ResponseBody
+	public Map<String, Object> changeLogFolderRelation(@RequestParam(value="logId", required=false, defaultValue="0") long logId, @RequestParam(value="checkedFolderIds", required=false, defaultValue="0") String checkedFolderIds, HttpServletRequest request) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		if (logId == 0L || "0".equals(checkedFolderIds)) {
+			resultMap.put("state", "update_failed");
+			resultMap.put("errorContent", "the logId is 0 or checkedFolderIds is 0");
+		} else {
+			try {
+				List<Long> folderIdList = new ArrayList<Long>();
+				String[] folderIdStrArr = checkedFolderIds.split(",");
+				for (String folderIdStr : folderIdStrArr) {
+					folderIdList.add(new Long(folderIdStr));
+				}
+				tFolderService.changeLogFolderRelation(logId, folderIdList);
+				resultMap.put("state", "update_succeed");
+				resultMap.put("errorContent", "");
+			} catch (Exception e) {
+				//logger.error("/moveUp", e);
+				resultMap.put("state", "update_failed");
+				resultMap.put("errorContent", e.getMessage());
+			}
+		}
+		return resultMap;
 	}
 	
 	@RequestMapping("/checkFolderExistsOrNot")

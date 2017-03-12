@@ -19,6 +19,15 @@
 		<result column="PARENT_ID"       jdbcType="BIGINT"   property="parentId"    javaType="long"/>
 		<result column="ORDER_BY"        jdbcType="INTEGER"   property="orderBy"     javaType="int"/>
 	</resultMap>
+	<resultMap type="sample.jetty.domain.LogFolderBean" id="LOG_FOLDER_BEAN_MAP">
+		<result column="ID"              jdbcType="BIGINT"    property="id"          javaType="long"/>
+		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"    property="createdBy"   javaType="long"/>
+		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"    property="lastUpdedBy" javaType="long"/>
+		<result column="LOG_ID"          jdbcType="BIGINT"    property="logId"       javaType="long"/>
+		<result column="FOLDER_ID"       jdbcType="BIGINT"    property="folderId"    javaType="long"/>
+	</resultMap>
 	
     <select id="selectChildrenFoldersByParentId" resultMap="FOLDER_BEAN_MAP" parameterType="long">
         select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY 
@@ -83,4 +92,16 @@
 	union
    	select ID,FOLDER_NAME,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,IS_DELETE,PARENT_ID,ORDER_BY from test.tb_folder where parent_id = (select parent_id From test.tb_folder where id = #{id}) and order_by = (select order_by+1 From test.tb_folder where id = #{id})
     </select>
+    
+    <select id="getLogFolderBeanListByLogId" resultMap="LOG_FOLDER_BEAN_MAP" parameterType="long">
+    select ID, CREATE_DT, CREATED_BY, LAST_UPD_DT, LAST_UPDED_BY, LOG_ID, FOLDER_ID from test.TB_LOG_FOLDER where LOG_ID = #{logId}
+    </select>
+    
+    <delete id="deleteLogFolderById" parameterType="long">
+    delete from test.TB_LOG_FOLDER where ID = #{id}
+    </delete>
+    
+    <delete id="deleteLogFolderByLogId" parameterType="long">
+    delete from test.TB_LOG_FOLDER where LOG_ID = #{logId}
+    </delete>
 </mapper>

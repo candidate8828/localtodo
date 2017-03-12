@@ -42,7 +42,18 @@
 	
 	<select id="selectLogListOrderbyCreateDt" parameterType="HashMap" resultMap="LOG_BEAN_MAP">
 	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
-	  from test.TB_WORK_LOG where IS_DELETE = '0' order by CREATE_DT desc limit ${startNum},${pageCount} 
+	  from test.TB_WORK_LOG where IS_DELETE = '0' 
+	  <if test="searchText != null">
+	  and (test.TB_WORK_LOG.LOG_TITLE like '%'||#{searchText}||'%' 
+	       or test.TB_WORK_LOG.LOG_DESC like '%'||#{searchText}||'%'
+	       or exists (
+		       select 1 from test.TB_WORK_CONTENT 
+		        where test.TB_WORK_LOG.ID = test.TB_WORK_CONTENT.LOG_ID 
+		          and test.TB_WORK_CONTENT.LOG_CONTENT like '%'||#{searchText}||'%'
+		   )
+	  )
+	  </if>
+	 order by CREATE_DT desc limit ${startNum},${pageCount} 
 	</select>
 	
 	<select id="selectLogListOrderbyFolderId" parameterType="HashMap" resultMap="LOG_BEAN_MAP">

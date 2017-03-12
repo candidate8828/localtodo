@@ -33,10 +33,13 @@ public class TEditorMdDao {
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "hiding", "unchecked" })
-	public <LogBean> List<LogBean> selectLogListOrderbyCreateDt(int startNum, int pageCount) throws Exception {
-		HashMap<String, Integer> paraMap = new HashMap<String, Integer>();
+	public <LogBean> List<LogBean> selectLogListOrderbyCreateDt(int startNum, int pageCount, String searchText) throws Exception {
+		HashMap<String, Object> paraMap = new HashMap<String, Object>();
 		paraMap.put("startNum", startNum);
 		paraMap.put("pageCount", pageCount);
+		if (null != searchText) {
+			paraMap.put("searchText", searchText);
+		}
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyCreateDt", paraMap);
 	}
 	

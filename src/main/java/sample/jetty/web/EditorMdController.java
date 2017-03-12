@@ -226,7 +226,10 @@ public class EditorMdController {
 	@ResponseBody
 	public Map<String, Object> getLogListByFolderId(@RequestParam(value="folderId", required=false, defaultValue="0") long folderId, 
 			@RequestParam(value="rownum", required=false, defaultValue="20") int rownum,
-			HttpServletRequest request) {
+			@RequestParam(value="searchText", required=false) String searchText, HttpServletRequest request) {
+//		if ("".equals(searchText)) {
+//			searchText = null;
+//		}
 		int pageCount = 20;
 		/*
 		 * folderId 0:最新的文档; -1:我的文件夾 ; -2: 垃圾箱  (delete==1)
@@ -241,7 +244,7 @@ public class EditorMdController {
 //		}
 		List<LogBean> logBeanList = null;
 		try {
-			logBeanList = tEditorMdService.selectLogListByFolderId(folderId, rownum - pageCount, pageCount);
+			logBeanList = tEditorMdService.selectLogListByFolderId(folderId, rownum - pageCount, pageCount, searchText);
 
 			resultMap.put("state", "get_succeed");
 			resultMap.put("errorContent", "");
