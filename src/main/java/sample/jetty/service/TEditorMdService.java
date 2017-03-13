@@ -79,6 +79,11 @@ public class TEditorMdService {
 		return ((null==resultList)?(new ArrayList<LogBean>()):resultList);
 	}
 	
+	@Transactional
+	public boolean setTodoProperties(LogBean logBean) throws Exception {
+		return tEditorMdDao.saveUpdateLogContent(logBean);
+	}
+	
 	/**
 	 * 根据指定的folderId获取其及其所有子folderId 放入 folderIdArrList 中
 	 * @param folderIdArrList

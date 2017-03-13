@@ -49,8 +49,20 @@ public class IndexController {
 			//logger.error("IndexController.toIndex", e);
 			alreadyInit = false;
 		}
-		model.addAttribute("alreadyInit", alreadyInit);
+		//model.addAttribute("alreadyInit", alreadyInit);
+		if (!alreadyInit) {
+			try{
+				initService.init();
+				alreadyInit = true;
+			}catch(Exception e){
+				logger.error("", e);
+				model.addAttribute("alreadyInit", alreadyInit);
+				model.addAttribute("error", e.getMessage());
+				return new ModelAndView("initerror", model);
+			}
+		}
 		return new ModelAndView("index", model);
+		
 	}
 
 	

@@ -6,4 +6,8 @@
 	<select id="checkTablesExistsOrNot" resultType="Long" >
 	select count(1) as COUNT_NUM from test.TB_WORK_LOG
 	</select>
+	
+	<update id="executeSql" parameterType="string">
+	${_parameter}
+	</update>
 </mapper>

@@ -54,7 +54,7 @@ start_dt timestamp, -- 开始时间,每个记录都有
 end_dt timestamp, -- 结束时间,需要跟进的记录才有
 deadline timestamp, -- 最后截止时间,可有可无,一般是IT需求才有
 log_type int, -- 0:不需要跟进,1:需要跟进
-log_stat int, -- 状态[log_type为1时才关注此字段;log_type为0时,此字段为0] 1:待办,2:进行中,3:完成,4:延期
+log_stat int, -- 状态[log_type为1时才关注此字段;log_type为0时,此字段为0] 1:待办,2:进行中,3:完成,4:延期,5:暂停
 is_delete int default '0', -- 0:未删除,1:已经删除
 log_title varchar(500), -- 任务名
 log_desc varchar(500) -- 将对应conntent中前500个去除掉html标签的字符放入这里

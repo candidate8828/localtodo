@@ -19,17 +19,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.HtmlUtils;
-import org.thymeleaf.util.JavaScriptUtils;
 
 import sample.jetty.SampleJettyApplication;
 import sample.jetty.domain.LogBean;
 import sample.jetty.embedmysql.EmbedMySqlServer;
 import sample.jetty.service.TEditorMdService;
+import sample.jetty.util.DateUtil;
 
 @Controller
 public class EditorMdController {
@@ -227,9 +228,9 @@ public class EditorMdController {
 	public Map<String, Object> getLogListByFolderId(@RequestParam(value="folderId", required=false, defaultValue="0") long folderId, 
 			@RequestParam(value="rownum", required=false, defaultValue="20") int rownum,
 			@RequestParam(value="searchText", required=false) String searchText, HttpServletRequest request) {
-//		if ("".equals(searchText)) {
-//			searchText = null;
-//		}
+		if ("".equals(searchText)) {
+			searchText = null;
+		}
 		int pageCount = 20;
 		/*
 		 * folderId 0:最新的文档; -1:我的文件夾 ; -2: 垃圾箱  (delete==1)
@@ -256,6 +257,42 @@ public class EditorMdController {
 			resultMap.put("errorContent", "query occured exception");
 			resultMap.put("rows", null);
 			resultMap.put("counts", 0);
+		}
+		return resultMap;
+	}
+	
+	@RequestMapping("/setTodoProperties")
+	@ResponseBody
+	public Map<String, Object> setTodoProperties(@RequestParam(value="logId", required=false, defaultValue="0") long logId,
+			@RequestParam(value="startDt", required=false, defaultValue="0") String startDt,
+			@RequestParam(value="endDt", required=false, defaultValue="") String endDt,
+			@RequestParam(value="deadline", required=false, defaultValue="") String deadline,
+			@RequestParam(value="logType", required=false, defaultValue="0") int logType,
+			@RequestParam(value="logStat", required=false, defaultValue="0") int logStat,
+			HttpServletRequest request) {
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		try {
+			if(logId <= 0){
+				throw new Exception("the logId is null");
+			}
+			LogBean selectedLogBean = tEditorMdService.selectEditorMdById(logId);
+			selectedLogBean.setLastUpdDt(new Date());
+			selectedLogBean.setStartDt(DateUtil.string2Date(startDt, DateUtil.PATTERN_STANDARD19H));
+			if(null != endDt && !"".equals(endDt)) {
+				selectedLogBean.setEndDt(DateUtil.string2Date(endDt, DateUtil.PATTERN_STANDARD19H));
+			}
+			if (null != deadline && !"".equals(deadline)) {
+				selectedLogBean.setDeadline(DateUtil.string2Date(deadline, DateUtil.PATTERN_STANDARD19H));
+			}
+			selectedLogBean.setLogType(logType);
+			selectedLogBean.setLogStat(logStat);
+			tEditorMdService.setTodoProperties(selectedLogBean);
+			resultMap.put("state", "update_succeed");
+			resultMap.put("errorContent", "");
+		} catch (Exception e) {
+			logger.error("EditorMdController.setTodoProperties", e);
+			resultMap.put("state", "update_failed");
+			resultMap.put("errorContent", "occured errors "+e.getMessage());
 		}
 		return resultMap;
 	}

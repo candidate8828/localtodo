@@ -37,7 +37,9 @@ public class TEditorMdDao {
 		HashMap<String, Object> paraMap = new HashMap<String, Object>();
 		paraMap.put("startNum", startNum);
 		paraMap.put("pageCount", pageCount);
-		if (null != searchText) {
+		if(":todo".equalsIgnoreCase(searchText)){
+			paraMap.put("todo", "todo");
+		} else if (null != searchText) {
 			paraMap.put("searchText", searchText);
 		}
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyCreateDt", paraMap);
@@ -49,7 +51,9 @@ public class TEditorMdDao {
 		paraMap.put("folderId", new Long(folderId));
 		paraMap.put("startNum", new Long(startNum));
 		paraMap.put("pageCount", new Long(pageCount));
-		if (null != searchText) {
+		if(":todo".equalsIgnoreCase(searchText)){
+			paraMap.put("todo", "todo");
+		} else if (null != searchText) {
 			paraMap.put("searchText", searchText);
 		}
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyFolderId", paraMap);
@@ -72,7 +76,9 @@ public class TEditorMdDao {
 		paraMap.put("folderIdArr", folderIdArr);
 		paraMap.put("startNum", new Long(startNum));
 		paraMap.put("pageCount", new Long(pageCount));
-		if (null != searchText) {
+		if(":todo".equalsIgnoreCase(searchText)){
+			paraMap.put("todo", "todo");
+		} else if (null != searchText) {
 			paraMap.put("searchText", searchText);
 		}
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectLogListOrderbyFolderIdArr", paraMap);
@@ -83,7 +89,9 @@ public class TEditorMdDao {
 		HashMap<String, Object> paraMap = new HashMap<String, Object>();
 		paraMap.put("startNum", new Long(startNum));
 		paraMap.put("pageCount", new Long(pageCount));
-		if (null != searchText) {
+		if(":todo".equalsIgnoreCase(searchText)){
+			paraMap.put("todo", "todo");
+		} else if (null != searchText) {
 			paraMap.put("searchText", searchText);
 		}
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectDeletedLogListOrderbyCreateDt", paraMap);
