@@ -3,11 +3,58 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="SAMPLE_INIT_MAPPER">
+	<resultMap type="sample.jetty.domain.BaseBean" id="SCAN_BASE_BEAN_MAP">
+		<result column="ID"              jdbcType="BIGINT"    property="id"          javaType="long"/>
+		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"    property="createdBy"   javaType="long"/>
+		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"    property="lastUpdedBy" javaType="long"/>
+	</resultMap>
+	<resultMap type="sample.jetty.domain.LogBean" id="LOG_BEAN_MAP">
+		<result column="ID"              jdbcType="BIGINT"   property="id"          javaType="long"/>
+		<result column="CREATE_DT"       jdbcType="TIMESTAMP" property="createDt"    javaType="java.util.Date"/>
+		<result column="CREATED_BY"      jdbcType="BIGINT"   property="createdBy"   javaType="long"/>
+		<result column="LAST_UPD_DT"     jdbcType="TIMESTAMP" property="lastUpdDt"   javaType="java.util.Date"/>
+		<result column="LAST_UPDED_BY"   jdbcType="BIGINT"   property="lastUpdedBy" javaType="long"/>
+		<result column="START_DT"        jdbcType="TIMESTAMP" property="startDt"     javaType="java.util.Date"/>
+		<result column="END_DT"          jdbcType="TIMESTAMP" property="endDt"       javaType="java.util.Date"/>
+		<result column="DEADLINE"        jdbcType="TIMESTAMP" property="deadline"    javaType="java.util.Date"/>
+		<result column="LOG_TYPE"        jdbcType="INTEGER"   property="logType"     javaType="int"/>
+		<result column="LOG_STAT"        jdbcType="INTEGER"   property="logStat"     javaType="int"/>
+		<result column="IS_DELETE"       jdbcType="INTEGER"   property="isDelete"    javaType="int"/>
+		<result column="LOG_TITLE"       jdbcType="VARCHAR"   property="logTitle"    javaType="String"/>
+		<result column="LOG_DESC"        jdbcType="VARCHAR"   property="logDesc"     javaType="String"/>
+	</resultMap>
+	
 	<select id="checkTablesExistsOrNot" resultType="Long" >
 	select count(1) as COUNT_NUM from test.TB_WORK_LOG
 	</select>
 	
+	<select id="checkTodayScanedOrNot" resultMap="SCAN_BASE_BEAN_MAP">
+	select id,create_dt,created_by,last_upd_dt,last_upded_by from test.TB_SCAN order by create_dt desc limit 0,1
+	</select>
+	
 	<update id="executeSql" parameterType="string">
 	${_parameter}
+	</update>
+	
+	<select id="sacnDelaiedTodoList" resultMap="LOG_BEAN_MAP" parameterType="HashMap">
+	<![CDATA[
+	select ID,CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY,START_DT,END_DT,DEADLINE,LOG_TYPE,LOG_STAT,IS_DELETE,LOG_TITLE,LOG_DESC 
+	  from test.TB_WORK_LOG where IS_DELETE = '0' and LOG_TYPE = '1' and LOG_STAT != '4' and (DEADLINE <= #{today} or DATE_FORMAT(NOW(),'%Y-%d-%m') = #{todayStr}) 
+	]]>
+	</select>
+	
+	<insert id="addScanDealRecored" parameterType="sample.jetty.domain.BaseBean" useGeneratedKeys="true" keyProperty="id" >
+	insert into test.TB_SCAN (CREATE_DT,CREATED_BY,LAST_UPD_DT,LAST_UPDED_BY) values (#{createDt}, #{createdBy}, #{lastUpdDt}, #{lastUpdedBy})
+	</insert>
+	
+	<update id="updateScanDealRecored" parameterType="sample.jetty.domain.BaseBean" >
+	update test.TB_SCAN 
+	   set CREATE_DT = #{createDt},
+	       CREATED_BY = #{createdBy},
+	       LAST_UPD_DT = #{lastUpdDt},
+	       LAST_UPDED_BY = #{lastUpdedBy}
+	 where ID = #{id}
 	</update>
 </mapper>

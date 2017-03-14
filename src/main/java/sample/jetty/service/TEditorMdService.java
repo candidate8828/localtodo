@@ -81,7 +81,7 @@ public class TEditorMdService {
 	
 	@Transactional
 	public boolean setTodoProperties(LogBean logBean) throws Exception {
-		return tEditorMdDao.saveUpdateLogContent(logBean);
+		return tEditorMdDao.saveUpdateLogBean(logBean);
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public class TEditorMdService {
 		if (logBean.getId() <= 0L) {
 			throw new Exception("the logBean's id is <= 0!");
 		}
-		tEditorMdDao.saveUpdateLogContent(logBean);
+		tEditorMdDao.saveUpdateLogBean(logBean);
 		List<LogContentBean> contentList = tEditorMdDao.selectEditorMdContentListById(logBean.getId());
 		String logContent = logBean.getLogContent();
 		LogContentBean newLogContentBean = null;

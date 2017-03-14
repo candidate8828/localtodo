@@ -97,12 +97,12 @@ public class TEditorMdDao {
 		return (List<LogBean>)this.sqlSessionTemplate.selectList("SAMPLE_EDITORMD_MAPPER.selectDeletedLogListOrderbyCreateDt", paraMap);
 	}
 	
-	public boolean saveUpdateLogContent(LogBean logBean) throws Exception {
+	public boolean saveUpdateLogBean(LogBean logBean) throws Exception {
 		boolean result = false;
 		if (logBean.getId() <= 0L) {
 			throw new Exception("the logBean's id is <= 0!");
 		}
-		result = this.sqlSessionTemplate.update("SAMPLE_EDITORMD_MAPPER.saveUpdateLogContent", logBean) > 0;
+		result = this.sqlSessionTemplate.update("SAMPLE_EDITORMD_MAPPER.saveUpdateLogBean", logBean) > 0;
 		return result;
 	}
 	

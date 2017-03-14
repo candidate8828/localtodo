@@ -16,6 +16,7 @@
 
 package sample.jetty;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
@@ -40,8 +41,11 @@ public class SampleJettyApplication {
 			inputstream = url.openStream();
 			pro.load(inputstream);
 			//new EmbedMySqlServer(pro).startup();
+			
+			String dbPath = (new File("")).getAbsolutePath() + "/db/";
+			dbPath = dbPath.replaceAll("\\\\", "/");
 			//可以把数据库放到其他磁盘
-			EmbedMySqlServer mysqldbServer = new EmbedMySqlServer(pro, "C:\\gfworklog\\db\\");
+			EmbedMySqlServer mysqldbServer = new EmbedMySqlServer(pro, dbPath /*"C:\\gfworklog\\db\\"*/);
 			
 			SampleJettyApplication.MAIN_THREAD_LOCAL.put("embedMysqlServer",mysqldbServer);
 

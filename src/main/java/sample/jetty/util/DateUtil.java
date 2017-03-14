@@ -174,7 +174,4 @@ public class DateUtil {
         return returnStr;
     }
      
-    public static void main(String[] args){
-        System.out.println(DateUtil.getWantDate("2011-01-01 23:59:23", "yyyyMMdd"));
-    }
 }

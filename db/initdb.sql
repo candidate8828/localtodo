@@ -147,3 +147,15 @@ create_time bigint,
 relate_path varchar(1000),
 file_type varchar(100)
 );
+
+-- 用于记录每天第一次页面访问时对所有待办进行过期扫描的记录
+create table TB_SCAN
+(
+id bigint primary key auto_increment,
+create_dt timestamp,
+created_by bigint,
+last_upd_dt timestamp,
+last_upded_by bigint
+);
+
+

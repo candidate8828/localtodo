@@ -142,7 +142,7 @@ public class TFolderService {
 		LogBean selectedLogBean = tEditorMdDao.selectEditorMdById(logId);
 		selectedLogBean.setIsDelete(0);
 		selectedLogBean.setLastUpdDt(new Date());
-		tEditorMdDao.saveUpdateLogContent(selectedLogBean);
+		tEditorMdDao.saveUpdateLogBean(selectedLogBean);
 	}
 	
 	@Transactional(readOnly=true)

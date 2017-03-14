@@ -16,6 +16,8 @@
 
 package sample.jetty.web;
 
+import java.util.Date;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -28,8 +30,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import sample.jetty.domain.BaseBean;
 import sample.jetty.service.InitService;
 import sample.jetty.service.TUserService;
+import sample.jetty.util.DateUtil;
 
 @Controller
 public class IndexController {
@@ -51,14 +55,33 @@ public class IndexController {
 		}
 		//model.addAttribute("alreadyInit", alreadyInit);
 		if (!alreadyInit) {
-			try{
+			try {
 				initService.init();
 				alreadyInit = true;
-			}catch(Exception e){
+			} catch (Exception e) {
 				logger.error("", e);
 				model.addAttribute("alreadyInit", alreadyInit);
 				model.addAttribute("error", e.getMessage());
 				return new ModelAndView("initerror", model);
+			}
+		}
+		if (alreadyInit) {
+			try {
+				BaseBean selectedBaseBean = initService.checkTodayScanedOrNot();
+				// 实现runnable借口，创建多线程并启动
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						try {
+							initService.dealDelayRecored(selectedBaseBean);
+						} catch (Exception e) {
+							logger.error("" , e);
+						}
+					}
+				}) {
+				}.start();
+			} catch (Exception e) {
+				logger.error("", e);
 			}
 		}
 		return new ModelAndView("index", model);

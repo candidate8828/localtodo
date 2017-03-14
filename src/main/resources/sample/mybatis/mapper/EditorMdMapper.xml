@@ -118,7 +118,7 @@
 	 order by CREATE_DT desc limit ${startNum},${pageCount} 
 	</select>
 	
-	<update id="saveUpdateLogContent" parameterType="sample.jetty.domain.LogBean">
+	<update id="saveUpdateLogBean" parameterType="sample.jetty.domain.LogBean">
 	update test.TB_WORK_LOG t 
 	   set t.LAST_UPD_DT = #{lastUpdDt},
 	       t.LAST_UPDED_BY = #{lastUpdedBy},

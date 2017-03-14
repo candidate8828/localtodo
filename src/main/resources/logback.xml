@@ -2,7 +2,8 @@
 <configuration>
 
 	<!-- 日志打印路径 -->
-	<property name="DEV_HOME" value="C:/gfworklog/logs" />
+	<!-- property name="DEV_HOME" value="C:/gfworklog/logs" / -->
+	<property name="DEV_HOME" value="./logs" />
 	
 	<!-- 控制台日志打印 -->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
