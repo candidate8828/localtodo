@@ -991,6 +991,7 @@ function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 							    			}
 							    			
 							    			$('#logType4todoSetId').switchbutton({
+							    				value: optionsmap['logType'],
 							    	            checked: (optionsmap['logType'] == '1')?true:false,
 							    	            onChange: function(checked){
 							    	                //console.log(checked);
@@ -1007,11 +1008,22 @@ function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 							    	                }
 							    	            }
 							    	        });
+							    			$('#logType4todoValueId').val(optionsmap['logType']);
 
 							    			if (optionsmap['logType'] == '1') {
-							    				//$('#logStat4todoSetId').combobox('setValue', optionsmap['logStat']);
-							    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
 							    				$('#logStat4todoSetId').combobox('enable');
+							    				if (optionsmap['logStat'] == "1") {//1:待办
+							    					$('#logStat4todoSetId').combobox('setValue', "待办");
+				    							} else if (optionsmap['logStat'] == "2") {//2:进行中
+				    								$('#logStat4todoSetId').combobox('setValue', "进行中");
+				    							} else if (optionsmap['logStat'] == "3") {//3:完成
+				    								$('#logStat4todoSetId').combobox('setValue', "完成");
+				    							} else if (optionsmap['logStat'] == "4") {//4:延期
+				    								$('#logStat4todoSetId').combobox('setValue', "延期");
+				    							} else if (optionsmap['logStat'] == "5") {//5:暂停
+				    								$('#logStat4todoSetId').combobox('setValue', "暂停");
+				    							}
+							    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
 							    			} else {
 							    				//$('#logStat4todoSetId').combobox('setValue', optionsmap['logStat']);
 							    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
@@ -1613,13 +1625,24 @@ $(document).ready(function(){
 											    	                }
 											    	            }
 											    	        });
+											    			$('#logType4todoValueId').val(optionsmap['logType']);
 
 											    			if (optionsmap['logType'] == '1') {
-											    				$('#logStat4todoSetId').combobox('setValue', optionsmap['logStat']);
-											    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
 											    				$('#logStat4todoSetId').combobox('enable');
+											    				if (optionsmap['logStat'] == "1") {//1:待办
+											    					$('#logStat4todoSetId').combobox('setValue', "待办");
+								    							} else if (optionsmap['logStat'] == "2") {//2:进行中
+								    								$('#logStat4todoSetId').combobox('setValue', "进行中");
+								    							} else if (optionsmap['logStat'] == "3") {//3:完成
+								    								$('#logStat4todoSetId').combobox('setValue', "完成");
+								    							} else if (optionsmap['logStat'] == "4") {//4:延期
+								    								$('#logStat4todoSetId').combobox('setValue', "延期");
+								    							} else if (optionsmap['logStat'] == "5") {//5:暂停
+								    								$('#logStat4todoSetId').combobox('setValue', "暂停");
+								    							}
+											    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
 											    			} else {
-											    				$('#logStat4todoSetId').combobox('setValue', optionsmap['logStat']);
+											    				//$('#logStat4todoSetId').combobox('setValue', optionsmap['logStat']);
 											    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
 											    				$('#logStat4todoSetId').combobox('disable');
 											    			}
