@@ -750,6 +750,10 @@ function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 	$('#selectedFolderId').val(folderId);
 	$('#selectedLogId').val('');
 	var rownumValue = $('#loglistRownumId').val();
+	doAjax2getLogList(folderId, rownumValue, 'init', searchText);
+}
+
+function doAjax2getLogList(folderId, rownumValue, loadDataType, searchText) {
 	$.ajax({
 		type: 'POST',
 		url: '/getLogListByFolderId',
@@ -759,7 +763,11 @@ function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 			//console.log(data);
 			if ("get_succeed" == data.state) {
 				if (data.counts > 0) {
-					$("#loglistRownumId").val(data.counts);
+					if ('init' == loadDataType) {
+						$("#loglistRownumId").val(data.counts);
+					} else {
+						$("#loglistRownumId").val(new Number($('#loglistRownumId').val()) + new Number(data.counts));
+					}
 					var listStr = "";
 					for (var i=0;i<data.rows.length;i++) {
 						var bakcolor = '#CEE9FF';
@@ -782,7 +790,11 @@ function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 								+ '<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">'+ data.rows[i].logDesc +'</p>'
 								+ '</a>';
 					}
-					$('#titleListId').html(listStr);
+					if ('init' == loadDataType) {
+						$('#titleListId').html(listStr);
+					} else {
+						$('#titleListId').html($('#titleListId').html()+listStr);
+					}
 					$("#folderdivId").mCustomScrollbar("update");
 					listStr = null;
 					
@@ -1210,24 +1222,15 @@ function getLogsOrderbyCreateDtDesc(folderId, searchText) {
 						});
 					}
 				} else if (data.counts == 0) {
-					$('#titleListId').html("");
-					$("#folderdivId").mCustomScrollbar("update");
-					$('#selectedLogTitleId').textbox('setValue','');
-					var iframeSrc = "/showIframeMarkdownHTMLByLogId?logId=0&timestamp="+ ((new Date()).getTime()) ;
-					$('#editorMdContentId').attr('src', iframeSrc);
-					/*
-					$.messager.show({
-	    				title:'系统信息',
-	    				msg: "此文件夹下无数据!",
-	    				showSpeed:100,
-	    				showType:'fade',
-	    				timeout:4000,
-	    				style:{
-	    					right:'',
-	    					bottom:''
-	    				}
-	    			});
-					*/
+					if ('init' == loadDataType) {
+						$('#titleListId').html("");
+						$("#folderdivId").mCustomScrollbar("update");
+						$('#selectedLogTitleId').textbox('setValue','');
+						var iframeSrc = "/showIframeMarkdownHTMLByLogId?logId=0&timestamp="+ ((new Date()).getTime()) ;
+						$('#editorMdContentId').attr('src', iframeSrc);
+					} else {
+						// do nothing
+					}
 				}
 			} else if ("get_failed" == data.state) {
 				$.messager.show({
@@ -1496,399 +1499,7 @@ $(document).ready(function(){
 					//console.log("Scrolled to end of content.");
 					var folderId = $('#selectedFolderId').val();
 					var rownumValue = new Number($('#loglistRownumId').val())+20;
-					$.ajax({
-						type: 'POST',
-						url: '/getLogListByFolderId',
-						data: { 'folderId':folderId,"rownum":rownumValue },
-						dataType: 'json',
-						success: function(data, textStatus){
-							//console.log(data);
-							if ("get_succeed" == data.state) {
-								if (data.counts > 0) {
-									$("#loglistRownumId").val(new Number($('#loglistRownumId').val()) + new Number(data.counts));
-									var listStr = "";
-									for (var i=0;i<data.rows.length;i++) {
-										var bakcolor = '#CEE9FF';
-										if (data.rows[i].logType == "1") {
-											if (data.rows[i].logStat == "1") {//1:待办
-												bakcolor = "#5bc0de"; // 天蓝
-											} else if (data.rows[i].logStat == "2") {//2:进行中
-												bakcolor = "#ADFF2F"; // 浅绿
-											} else if (data.rows[i].logStat == "3") {//3:完成
-												bakcolor = "#00FF00"; // 绿色
-											} else if (data.rows[i].logStat == "4") {//4:延期
-												bakcolor = "#d9534f"; // 红色
-											} else if (data.rows[i].logStat == "5") {//5:暂停
-												bakcolor = "#f0ad4e"; // 橙色
-											}
-										}
-										//console.log(data.rows[i]);
-										listStr += '<a data-options="startDt:'+data.rows[i].startDt+",endDt:"+data.rows[i].endDt+",deadline:"+data.rows[i].deadline+",logType:"+data.rows[i].logType+",logStat:"+data.rows[i].logStat+'" href="javascript:void(0)" id="'+data.rows[i].id+'" class="list-group-item" title="'+ data.rows[i].logTitle +'"  onclick="javascript:changecolor(this);" style="background-color:'+bakcolor+';border:1px solid #CCC;">'
-												+ '<h4 class="list-group-item-heading" style="min-height:19px;max-height:19px;overflow:hidden;margin:0px 0px 0px 0px;">'+ data.rows[i].logTitle +'</h4>'
-												+ '<p class="list-group-item-text" style="min-height:45px;max-height:45px;overflow:hidden;">'+ data.rows[i].logDesc +'</p>'
-												+ '</a>';
-									}
-									$('#titleListId').html($('#titleListId').html()+listStr);
-									$("#folderdivId").mCustomScrollbar("update");
-									listStr = null;
-									
-									//$('#titleListId').children()[0].click();
-									
-									for (var i=0; i<$('#titleListId').children().length; i++){
-										$($('#titleListId').children()[i]).bind("contextmenu", function(e){
-											e.preventDefault();
-											return false;
-										});
-									}
-									for (var i=0; i<$('#titleListId').children().length; i++){
-										$($('#titleListId').children()[i]).bind("mousedown", function(e){
-											if (e.which == 3){
-												var tempAtem = this;
-												changecolor(tempAtem);
-												if (folderId == -2) {
-													$($('#logMenuId').children()[0]).children()[1].style="display:none";
-												} else {
-													$($('#logMenuId').children()[0]).children()[1].style="display:block";
-												}
-												$(this).contextmenu({
-											    	target: '#logMenuId',
-											    	onItem: function (context, e) {
-											    		//console.log(e.target.id);
-											    		//console.log(tempAtem);
-											    		if ('relationSet' == e.target.id) {
-											    			 // 设置跟进
-											    			var selectedItemLogId = tempAtem.id;
-											    			var dataoptions = $(tempAtem).data("options");
-											    			//console.log(dataoptions);
-											    			var dataoptionsArr = dataoptions.split(",");
-											    			//console.log(dataoptionsArr);
-											    			var optionsmap = {};
-											    			for (var i=0; i<dataoptionsArr.length; i++){
-											    				//console.log(dataoptionsArr[i]);
-											    				//console.log((dataoptionsArr[i].split(":")));
-											    				//console.log((dataoptionsArr[i].split(":"))[0]);
-											    				//console.log((dataoptionsArr[i].split(":"))[1]);
-											    				optionsmap[(dataoptionsArr[i].split(":"))[0]] = (dataoptionsArr[i].split(":"))[1];
-											    			}
-											    			//console.log(optionsmap);
-											    			//console.log(optionsmap.startDt);
-											    			
-											    			$('#startDt4todoSetId').datebox({
-											    			    required: true,
-											    			    showSeconds: true,
-											    			    formatter:formatDate,
-											    			    parser:parseDate,
-											    			    editable:false
-											    			});
-											    			var startDt = new Date();
-											    			startDt.setTime(optionsmap['startDt']);
-											    			$('#startDt4todoSetId').datebox("setValue", formatDate(startDt) );
-
-											    			$('#endDt4todoSetId').datebox({
-											    			    showSeconds: true,
-											    			    formatter:formatDate,
-											    			    parser:parseDate,
-											    			    editable:false
-											    			});
-											    			if (optionsmap['endDt']) {
-											    				var endDt = new Date();
-											    				endDt.setTime(optionsmap['endDt']);
-											    				$('#endDt4todoSetId').datebox("setValue", formatDate(endDt) );
-											    			}
-											    			
-											    			$('#deadLine4todoSetId').datebox({
-											    			    showSeconds: true,
-											    			    formatter:formatDate,
-											    			    parser:parseDate,
-											    			    editable:false
-											    			});
-											    			if (optionsmap['deadline']) {
-											    				var deadline = new Date();
-											    				deadline.setTime(optionsmap['deadline']);
-											    				$('#deadLine4todoSetId').datebox("setValue", formatDate(deadline) );
-											    			}
-											    			
-											    			$('#logType4todoSetId').switchbutton({
-											    	            checked: (optionsmap['logType'] == '1')?true:false,
-											    	            onChange: function(checked){
-											    	                //console.log(checked);
-											    	                if (checked) {
-											    	                	$('#logStat4todoSetId').combobox('enable');
-											    	                	$('#logType4todoValueId').val("1");
-											    	                	if(!$('#logStat4todoSetId').combobox('getValue') || "0"==$('#logStat4todoSetId').combobox('getValue')){
-											    	                		$('#logStat4todoSetId').combobox('setValue', "1");
-											    	                		$('#logStat4todoSetId').combobox('select', "1");
-											    	                	}
-											    	                } else {
-											    	                	$('#logStat4todoSetId').combobox('disable');
-											    	                	$('#logType4todoValueId').val("0");
-											    	                }
-											    	            }
-											    	        });
-											    			$('#logType4todoValueId').val(optionsmap['logType']);
-
-											    			if (optionsmap['logType'] == '1') {
-											    				$('#logStat4todoSetId').combobox('enable');
-											    				if (optionsmap['logStat'] == "1") {//1:待办
-											    					$('#logStat4todoSetId').combobox('setValue', "待办");
-								    							} else if (optionsmap['logStat'] == "2") {//2:进行中
-								    								$('#logStat4todoSetId').combobox('setValue', "进行中");
-								    							} else if (optionsmap['logStat'] == "3") {//3:完成
-								    								$('#logStat4todoSetId').combobox('setValue', "完成");
-								    							} else if (optionsmap['logStat'] == "4") {//4:延期
-								    								$('#logStat4todoSetId').combobox('setValue', "延期");
-								    							} else if (optionsmap['logStat'] == "5") {//5:暂停
-								    								$('#logStat4todoSetId').combobox('setValue', "暂停");
-								    							}
-											    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
-											    			} else {
-											    				//$('#logStat4todoSetId').combobox('setValue', optionsmap['logStat']);
-											    				$('#logStat4todoSetId').combobox('select', optionsmap['logStat']);
-											    				$('#logStat4todoSetId').combobox('disable');
-											    			}
-											    			
-											    			$('#todoSetWindow').dialog({
-											    				title: ((tempAtem.title+"").length>15)?("跟进设置（"+(tempAtem.title+"").substring(0,15)+"...）"):("跟进设置（"+tempAtem.title+"）"),
-											    			    width:600,
-											    			    height:400,
-											    			    modal:true,
-											    			    resizable:true,
-											    			    buttons:[{
-											    					text:'保存',
-											    					handler:function(){
-											    						var startDtVal = $('#startDt4todoSetId').datebox("getValue") + " 00:00:00";
-											    						var endDtVal = $('#endDt4todoSetId').datebox("getValue");
-											    						var deadLineVal = $('#deadLine4todoSetId').datebox("getValue");
-											    						var logTypeVal = $('#logType4todoValueId').val();
-											    						var logStatVal = $('#logStat4todoSetId').combobox('getValue');
-											    						
-											    						if (endDtVal) {endDtVal += " 23:59:59";}
-											    						if (deadLineVal) {deadLineVal += " 23:59:59";}
-											    						if (logTypeVal == "0") {logStatVal = "0";}
-											    						/*
-											    						console.log(startDtVal);
-											    						console.log(endDtVal);
-											    						console.log(deadLineVal);
-											    						console.log(logTypeVal);
-											    						console.log(logStatVal);
-																		*/
-											    			            $.ajax({
-												    		        		type: 'POST',
-												    		        		url: '/setTodoProperties',
-												    		        		data: {'logId': selectedItemLogId, 'startDt': startDtVal, 'endDt':endDtVal, 'deadline':deadLineVal, 'logType':logTypeVal, 'logStat':logStatVal },
-												    		        		dataType: 'json',
-												    		        		success: function(data, textStatus){
-												    		        			if ('update_succeed' == data.state) {
-												    		        				var optionsStr = "startDt:"+ parseDate(startDtVal).getTime() +",";
-												    		        				if (endDtVal && ""!=endDtVal) {optionsStr += "endDt:"+ parseDate(endDtVal).getTime() +","};
-												    		        				if (deadLineVal && ""!=deadLineVal) {optionsStr += "deadline:"+ parseDate(deadLineVal).getTime() +","};
-												    		        				optionsStr += "logType:"+ logTypeVal +",";
-												    		        				optionsStr += "logStat:"+ logStatVal + "";
-												    		        				
-												    		        				$('#todoSetFormId')[0].reset();
-														    						$('#todoSetWindow').dialog('close');
-														    						
-														    						var bakcolor = '#CEE9FF';
-														    						if (logTypeVal == "1") {
-														    							$('#span_div_todo').attr("style","display:block;margin:0px 0px 0px 0px;");
-														    							if (logStatVal == "1") {//1:待办
-														    								bakcolor = "#5bc0de"; // 天蓝
-														    								$('#span_logStat').text("待办");
-														    							} else if (logStatVal == "2") {//2:进行中
-														    								bakcolor = "#ADFF2F"; // 浅绿
-														    								$('#span_logStat').text("进行中");
-														    							} else if (logStatVal == "3") {//3:完成
-														    								bakcolor = "#00FF00"; // 绿色
-														    								$('#span_logStat').text("完成");
-														    							} else if (logStatVal == "4") {//4:延期
-														    								bakcolor = "#d9534f"; // 红色
-														    								$('#span_logStat').text("延期");
-														    							} else if (logStatVal == "5") {//5:暂停
-														    								bakcolor = "#f0ad4e"; // 橙色
-														    								$('#span_logStat').text("暂停");
-														    							}
-														    							$('#span_logStat').attr('style','background-color:'+bakcolor);
-														    							$('#span_logStat').addClass("label");
-														    							if (startDtVal) {
-														    								$('#span_startDt').text(startDtVal.substring(0,10));
-														    								$('#span_startDt').addClass("label");
-														    							}
-														    							if (endDtVal) {
-														    								$('#span_endDt').text(endDtVal.substring(0,10));
-														    								$('#span_endDt').addClass("label");
-														    							}
-														    							if (deadLineVal) {
-														    								$('#span_deadLine').text(deadLineVal.substring(0,10));
-														    								$('#span_deadLine').addClass("label");
-														    							}
-														    						} else {
-														    							$('#span_div_todo').attr("style","display:none;margin:0px 0px 0px 0px;");
-														    						}
-														    						$(tempAtem).attr('style','background-color:'+bakcolor+';border:1px solid #CCC;');
-														    						$(tempAtem).data("options", optionsStr);
-														    						
-												    			        			$.messager.show({
-												    			        				title:'系统信息',
-												    			        				msg:'跟进待办设置成功！',
-												    			        				showSpeed:100,
-												    			        				showType:'fade',
-												    			        				timeout:1000,
-												    			        				style:{
-												    			        					right:'',
-												    			        					bottom:''
-												    			        				}
-												    			        			});
-												    		        			} else {
-												    		        				$.messager.show({
-												    			        				title:'系统信息',
-												    			        				msg:'跟进待办设置失败！'+data.errorContent,
-												    			        				showSpeed:100,
-												    			        				showType:'fade',
-												    			        				timeout:4000,
-												    			        				style:{
-												    			        					right:'',
-												    			        					bottom:''
-												    			        				}
-												    			        			});
-												    		        			}
-												    		        		},
-												    		        		error : function(e) {
-												    		        			$.messager.show({
-											    			        				title:'系统信息',
-											    			        				msg:'调用 /setTodoProperties 错误！',
-											    			        				showSpeed:100,
-											    			        				showType:'fade',
-											    			        				timeout:4000,
-											    			        				style:{
-											    			        					right:'',
-											    			        					bottom:''
-											    			        				}
-											    			        			});
-												    		        		}
-												    		        	});
-											    					}
-											    				},{
-											    					text:'取消',
-											    					handler:function(){
-											    						// form重置
-											    						$('#todoSetFormId')[0].reset();
-											    						$('#todoSetWindow').dialog('close');
-											    					}
-											    				}]
-											    			});
-											    			$('#todoSetWindow').dialog('center');
-											    			$('#todoSetWindow').dialog('open');
-											    		} else if ('deleteLog' == e.target.id) {
-											    			var selectedItemLogId = tempAtem.id;
-											    			var selectedItemLogTitle = $($(tempAtem).children()[0]).text();
-											    			$.messager.confirm('删除日志', '确定要删除日志【'+selectedItemLogTitle+'】吗？', function(r){
-											    		        if (r){
-											    		        	$.ajax({
-											    		        		type: 'POST',
-											    		        		url: '/deleteLogById',
-											    		        		data: {'logId': selectedItemLogId },
-											    		        		dataType: 'json',
-											    		        		success: function(data, textStatus){
-											    		        			if ('update_succeed' == data.state) {
-											    			        			$(tempAtem).remove();
-											    			        			$.messager.show({
-											    			        				title:'系统信息',
-											    			        				msg:'删除日志成功！',
-											    			        				showSpeed:100,
-											    			        				showType:'fade',
-											    			        				timeout:400,
-											    			        				style:{
-											    			        					right:'',
-											    			        					bottom:''
-											    			        				}
-											    			        			});
-											    		        			} else {
-											    		        				$.messager.show({
-											    			        				title:'系统信息',
-											    			        				msg:'删除日志失败！'+data.errorContent,
-											    			        				showSpeed:100,
-											    			        				showType:'fade',
-											    			        				timeout:400,
-											    			        				style:{
-											    			        					right:'',
-											    			        					bottom:''
-											    			        				}
-											    			        			});
-											    		        			}
-											    		        		}
-											    		        	});
-											    		        }
-											    		    });
-											    		}
-													}
-												});
-												//console.log(e.which);
-											}
-										});
-									}
-								} else if (data.counts == 0) {
-									/*
-									$('#titleListId').html("");
-									$("#folderdivId").mCustomScrollbar("update");
-									$('#selectedLogTitleId').textbox('setValue','');
-									var iframeSrc = "/showIframeMarkdownHTMLByLogId?logId=0&timestamp="+ ((new Date()).getTime()) ;
-									$('#editorMdContentId').attr('src', iframeSrc);
-									*/
-									/*
-									$.messager.show({
-					    				title:'系统信息',
-					    				msg: "此文件夹下无数据!",
-					    				showSpeed:100,
-					    				showType:'fade',
-					    				timeout:4000,
-					    				style:{
-					    					right:'',
-					    					bottom:''
-					    				}
-					    			});
-									*/
-								}
-							} else if ("get_failed" == data.state) {
-								$.messager.show({
-				    				title:'系统信息',
-				    				msg: data.errorContent+"!",
-				    				showSpeed:100,
-				    				showType:'fade',
-				    				timeout:400,
-				    				style:{
-				    					right:'',
-				    					bottom:''
-				    				}
-				    			});
-							} else {
-								$.messager.show({
-				    				title:'系统信息',
-				    				msg:'发生未知问题！',
-				    				showSpeed:100,
-				    				showType:'fade',
-				    				timeout:400,
-				    				style:{
-				    					right:'',
-				    					bottom:''
-				    				}
-				    			});
-							}
-						},
-						error: function(e) { 
-							console.log(e);
-							$.messager.show({
-			    				title:'系统信息',
-			    				msg:'调用 /getLogListByFolderId 错误！',
-			    				showSpeed:100,
-			    				showType:'fade',
-			    				timeout:400,
-			    				style:{
-			    					right:'',
-			    					bottom:''
-			    				}
-			    			});
-						}
-					});
+					doAjax2getLogList(folderId, rownumValue, 'scroll', $("#searchText").textbox('getValue'));
 				}/* ,
 				onScrollStart: function(){
 					console.log("Scrolling.");
@@ -1950,8 +1561,8 @@ $(document).ready(function(){
 	// 搜索指定内容
 	$("#searchText").textbox('textbox').bind('keydown', function(e){
 		if (e.keyCode == 13){	// when press ENTER key, accept the inputed value.
-			/*$('#searchTextId').val($(this).val());
-			if (($(this).val()+"").trim() == "") {
+			$('#searchTextId').val(($(this).val()+"").trim());
+			/*if (($(this).val()+"").trim() == "") {
 				$.messager.show({
     				title:'系统信息',
     				msg:'搜索内容不能为空！',
